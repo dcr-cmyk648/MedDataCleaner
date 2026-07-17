@@ -24,55 +24,65 @@ AI service or any other remote endpoint.
 PDFs, office documents, images, DICOM, audio, databases, and automatic AI upload are explicitly
 out of scope for the first release.
 
-## Install and run
+## Easy installation
 
-The current MVP is installed from source. Standalone `.dmg` and Windows installer builds are not
-available yet.
+No coding experience or Git is required. The current preview is not a normal signed Mac or Windows
+app yet, but the included setup files handle the technical commands for you.
+
+> [!WARNING]
+> Use made-up or properly authorized test data while evaluating this preview. Installing the app
+> does not make it HIPAA-certified, and a person must review every result before export.
+
+### Before you begin
 
 You need:
 
-- [Git](https://git-scm.com/downloads)
-- [Python 3.12](https://www.python.org/downloads/) (recommended; Python 3.11–3.13 is supported)
-- An internet connection during installation only, to download Python packages and the local model
-- Roughly 1 GB of free disk space for the environment and English NLP model
+- A Mac or Windows PC
+- About 1 GB of free space
+- Internet access for the first setup
+- [Python 3.12.10](https://www.python.org/downloads/release/python-31210/)
 
-### macOS
+On the Python page, scroll to **Files** and choose:
 
-```bash
-git clone https://github.com/dcr-cmyk648/MedDataCleaner.git
-cd MedDataCleaner
-python3.12 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-python -m pip install .
-python -m spacy download en_core_web_lg
-med-data-cleaner
-```
+- **macOS 64-bit universal2 installer** on a Mac
+- **Windows installer (64-bit)** on most Windows PCs
 
-### Windows PowerShell
+Run the Python installer normally. On Windows, select **Add python.exe to PATH** if that option is
+shown.
 
-```powershell
-git clone https://github.com/dcr-cmyk648/MedDataCleaner.git
-Set-Location MedDataCleaner
-py -3.12 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-python -m pip install .
-python -m spacy download en_core_web_lg
-med-data-cleaner
-```
+### Step 1: Download Med Data Cleaner
 
-If PowerShell blocks activation scripts, use Command Prompt and run
-`.venv\Scripts\activate.bat`, then continue with the four `python`/`med-data-cleaner` commands
-above.
+1. Select this link: **[Download Med Data Cleaner as a ZIP file](https://github.com/dcr-cmyk648/MedDataCleaner/archive/refs/heads/main.zip)**.
+2. Open your Downloads folder and double-click the ZIP file to unpack it.
+3. Open the new `MedDataCleaner-main` folder.
 
-The app opens in the default browser at a random `127.0.0.1` port. Keep the terminal window open
-while using it and press `Ctrl+C` there to stop it. No internet connection is required at runtime.
+### Step 2: Set it up once
 
-The spaCy model is downloaded during installation only. If the model is missing, analysis remains
-available in degraded mode but export is blocked. See the
-[detailed installation and troubleshooting guide](docs/INSTALLATION.md) for recovery steps,
-updates, and running the app again later.
+**On a Mac**
+
+1. Control-click `INSTALL_MAC.command` and select **Open**.
+2. If macOS asks for confirmation, select **Open** again.
+3. A Terminal window will install the app. Keep it open; setup commonly takes 5–15 minutes.
+4. When prompted, press Return. The app will open in your browser.
+
+**On Windows**
+
+1. Double-click `INSTALL_WINDOWS.bat`.
+2. If Windows shows a protection message, continue only if you downloaded the file from this
+   GitHub repository. Select **More info**, then **Run anyway**.
+3. A black setup window will install the app. Keep it open; setup commonly takes 5–15 minutes.
+4. When prompted, press any key. The app will open in your browser.
+
+### Step 3: Open it next time
+
+- On a Mac, double-click `START_MAC.command`.
+- On Windows, double-click `START_WINDOWS.bat`.
+
+Keep the Terminal or black command window open while using the app. Closing that window stops the
+local app. Internet access is not needed after setup.
+
+For screenshots-in-words, common error messages, updates, and optional command-line instructions,
+see the **[beginner installation and troubleshooting guide](docs/INSTALLATION.md)**.
 
 ## Development setup
 
