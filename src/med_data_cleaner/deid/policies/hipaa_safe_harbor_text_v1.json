@@ -1,0 +1,101 @@
+{
+  "policy_id": "hipaa-safe-harbor-text-v1",
+  "title": "HIPAA Safe Harbor-oriented plain-text policy",
+  "method_target": "Safe Harbor",
+  "scope": "Pasted US-English plain text",
+  "certifies_compliance": false,
+  "categories": [
+    {
+      "number": 1,
+      "name": "Names",
+      "entity_types": ["PERSON"]
+    },
+    {
+      "number": 2,
+      "name": "Geographic subdivisions smaller than a state",
+      "entity_types": ["LOCATION", "ADDRESS", "ZIP_CODE"]
+    },
+    {
+      "number": 3,
+      "name": "Date elements and ages over 89",
+      "entity_types": ["DATE", "AGE_OVER_89"]
+    },
+    {
+      "number": 4,
+      "name": "Telephone numbers",
+      "entity_types": ["PHONE_NUMBER"]
+    },
+    {
+      "number": 5,
+      "name": "Fax numbers",
+      "entity_types": ["FAX_NUMBER"]
+    },
+    {
+      "number": 6,
+      "name": "Email addresses",
+      "entity_types": ["EMAIL_ADDRESS"]
+    },
+    {
+      "number": 7,
+      "name": "Social Security numbers",
+      "entity_types": ["US_SSN"]
+    },
+    {
+      "number": 8,
+      "name": "Medical record numbers",
+      "entity_types": ["MEDICAL_RECORD_NUMBER"]
+    },
+    {
+      "number": 9,
+      "name": "Health plan beneficiary numbers",
+      "entity_types": ["HEALTH_PLAN_ID"]
+    },
+    {
+      "number": 10,
+      "name": "Account numbers",
+      "entity_types": ["ACCOUNT_NUMBER"]
+    },
+    {
+      "number": 11,
+      "name": "Certificate and license numbers",
+      "entity_types": ["LICENSE_NUMBER"]
+    },
+    {
+      "number": 12,
+      "name": "Vehicle identifiers and serial numbers",
+      "entity_types": ["VEHICLE_ID"]
+    },
+    {
+      "number": 13,
+      "name": "Device identifiers and serial numbers",
+      "entity_types": ["DEVICE_ID"]
+    },
+    {
+      "number": 14,
+      "name": "Web URLs",
+      "entity_types": ["URL"]
+    },
+    {
+      "number": 15,
+      "name": "IP addresses",
+      "entity_types": ["IP_ADDRESS"]
+    },
+    {
+      "number": 16,
+      "name": "Biometric identifiers",
+      "entity_types": ["BIOMETRIC_ID"],
+      "input_note": "Biometric media is out of scope for the text MVP"
+    },
+    {
+      "number": 17,
+      "name": "Full-face photographs and comparable images",
+      "entity_types": ["FACE_IMAGE"],
+      "input_note": "Images are out of scope for the text MVP"
+    },
+    {
+      "number": 18,
+      "name": "Other unique identifying numbers, characteristics, or codes",
+      "entity_types": ["UNIQUE_ID"]
+    }
+  ]
+}

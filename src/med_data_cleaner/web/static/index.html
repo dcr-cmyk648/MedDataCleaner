@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="med-data-cleaner-token" content="__API_TOKEN__" />
+    <title>Med Data Cleaner</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <script src="/static/app.js" defer></script>
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">LOCAL PHI REVIEW</p>
+        <h1>Med Data Cleaner</h1>
+        <p class="subtitle">Review likely identifiers before creating a de-identified text file.</p>
+      </div>
+      <div id="engineBadge" class="status-badge pending" role="status">Checking local engine…</div>
+    </header>
+
+    <main>
+      <section class="notice" aria-label="Important limitation">
+        <strong>Human review is required.</strong>
+        This tool assists with de-identification and does not certify HIPAA compliance. Nothing is
+        uploaded by this application.
+      </section>
+
+      <section class="toolbar" aria-label="Document actions">
+        <button id="scanButton" class="primary" type="button">Scan and clean</button>
+        <button id="clearButton" class="secondary" type="button">Clear memory</button>
+        <span id="documentStatus" class="muted" aria-live="polite">Paste plain text to begin.</span>
+      </section>
+
+      <section class="workspace" aria-label="Text review workspace">
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="step">1 · SOURCE</p>
+              <h2>Original text</h2>
+            </div>
+            <span id="characterCount" class="counter">0 characters</span>
+          </div>
+          <label class="sr-only" for="inputText">Original clinical text</label>
+          <textarea
+            id="inputText"
+            maxlength="500000"
+            spellcheck="false"
+            autocomplete="off"
+            placeholder="Paste plain clinical text here…"
+          ></textarea>
+
+          <div class="selection-tools">
+            <label for="manualCategory">Selected text is</label>
+            <select id="manualCategory" disabled></select>
+            <button id="addSelectionButton" class="secondary compact" type="button" disabled>
+              Add selected span
+            </button>
+          </div>
+
+          <div class="review-preview">
+            <p class="small-label">Detection preview</p>
+            <div id="highlightOutput" class="highlight-output muted">
+              Findings will be highlighted here.
+            </div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="panel-heading">
+            <div>
+              <p class="step">2 · RESULT</p>
+              <h2>Cleaned preview</h2>
+            </div>
+            <span id="findingCount" class="counter">Not scanned</span>
+          </div>
+          <pre id="cleanedOutput" class="cleaned-output muted">The cleaned text will appear here.</pre>
+
+          <div id="exportGate" class="export-gate blocked">
+            <div>
+              <p class="small-label">EXPORT GATE</p>
+              <p id="exportMessage">Run the local scan before exporting.</p>
+            </div>
+            <label class="review-check">
+              <input id="reviewCheckbox" type="checkbox" disabled />
+              <span>I reviewed every finding and the remaining context.</span>
+            </label>
+            <button id="exportButton" class="primary" type="button" disabled>
+              Export de-identified .txt
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <section class="findings-section" aria-labelledby="findingsTitle">
+        <div class="section-heading">
+          <div>
+            <p class="step">3 · REVIEW</p>
+            <h2 id="findingsTitle">Detected spans</h2>
+          </div>
+          <p class="muted">Uncheck only after confirming a finding is not identifying information.</p>
+        </div>
+        <div id="findingsList" class="findings-list">
+          <p class="empty-state">No scan results yet.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span id="policyLabel">Strict local text policy</span>
+      <span>Original text is not saved by the application.</span>
+    </footer>
+  </body>
+</html>
