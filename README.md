@@ -24,33 +24,71 @@ AI service or any other remote endpoint.
 PDFs, office documents, images, DICOM, audio, databases, and automatic AI upload are explicitly
 out of scope for the first release.
 
-## Development setup
+## Install and run
 
-Python 3.12 is the recommended development runtime.
+The current MVP is installed from source. Standalone `.dmg` and Windows installer builds are not
+available yet.
+
+You need:
+
+- [Git](https://git-scm.com/downloads)
+- [Python 3.12](https://www.python.org/downloads/) (recommended; Python 3.11–3.13 is supported)
+- An internet connection during installation only, to download Python packages and the local model
+- Roughly 1 GB of free disk space for the environment and English NLP model
+
+### macOS
 
 ```bash
+git clone https://github.com/dcr-cmyk648/MedDataCleaner.git
+cd MedDataCleaner
 python3.12 -m venv .venv
 source .venv/bin/activate
 python -m pip install --upgrade pip
-python -m pip install -e '.[dev]'
+python -m pip install .
 python -m spacy download en_core_web_lg
-```
-
-The spaCy model is downloaded during setup only. At runtime, the app will never download a model.
-If the configured model is unavailable, analysis remains available in degraded mode but export is
-blocked. Set `MDC_SPACY_MODEL` to use a different already-installed local model.
-
-Run the app:
-
-```bash
 med-data-cleaner
 ```
 
-Run verification:
+### Windows PowerShell
+
+```powershell
+git clone https://github.com/dcr-cmyk648/MedDataCleaner.git
+Set-Location MedDataCleaner
+py -3.12 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+python -m pip install .
+python -m spacy download en_core_web_lg
+med-data-cleaner
+```
+
+If PowerShell blocks activation scripts, use Command Prompt and run
+`.venv\Scripts\activate.bat`, then continue with the four `python`/`med-data-cleaner` commands
+above.
+
+The app opens in the default browser at a random `127.0.0.1` port. Keep the terminal window open
+while using it and press `Ctrl+C` there to stop it. No internet connection is required at runtime.
+
+The spaCy model is downloaded during installation only. If the model is missing, analysis remains
+available in degraded mode but export is blocked. See the
+[detailed installation and troubleshooting guide](docs/INSTALLATION.md) for recovery steps,
+updates, and running the app again later.
+
+## Development setup
+
+After completing the platform setup above, install the project in editable mode with development
+tools:
+
+```bash
+python -m pip install -e '.[dev]'
+```
+
+Run verification before submitting changes:
 
 ```bash
 pytest
 ruff check .
+ruff format --check .
 ```
 
 ## Security defaults
