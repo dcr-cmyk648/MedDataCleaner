@@ -45,6 +45,10 @@ if not exist ".venv\Scripts\python.exe" (
     echo 2 of 4: Using the existing app environment...
 )
 
+rem spaCy 3.8 looks for a pip executable on PATH before downloading a model.
+set "VIRTUAL_ENV=%CD%\.venv"
+set "PATH=%VIRTUAL_ENV%\Scripts;%PATH%"
+
 echo.
 echo 3 of 4: Installing Med Data Cleaner...
 ".venv\Scripts\python.exe" -m pip install --upgrade pip

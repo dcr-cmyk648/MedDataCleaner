@@ -58,6 +58,10 @@ else
     echo "2 of 4: Using the existing app environment..."
 fi
 
+# spaCy 3.8 looks for a pip executable on PATH before downloading a model.
+export VIRTUAL_ENV="$PROJECT_DIR/.venv"
+export PATH="$VIRTUAL_ENV/bin:$PATH"
+
 echo
 echo "3 of 4: Installing Med Data Cleaner..."
 ".venv/bin/python" -m pip install --upgrade pip

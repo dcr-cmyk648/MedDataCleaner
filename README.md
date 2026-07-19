@@ -81,6 +81,20 @@ shown.
 Keep the Terminal or black command window open while using the app. Closing that window stops the
 local app. Internet access is not needed after setup.
 
+### Updating when a new version is available
+
+Med Data Cleaner does not update itself or show update notifications yet. When a new version is
+available:
+
+1. Stop Med Data Cleaner and close its Terminal or command window.
+2. **[Download a fresh ZIP](https://github.com/dcr-cmyk648/MedDataCleaner/archive/refs/heads/main.zip)**.
+3. Unpack it into a new folder. Do not combine it with the old app folder.
+4. Run `INSTALL_MAC.command` or `INSTALL_WINDOWS.bat` in the new folder.
+5. Confirm the new copy opens, then delete the old app folder if you no longer need it.
+
+Files you intentionally exported remain in your browser's download location. The app does not
+store pasted notes in its own folder.
+
 For screenshots-in-words, common error messages, updates, and optional command-line instructions,
 see the **[beginner installation and troubleshooting guide](docs/INSTALLATION.md)**.
 
