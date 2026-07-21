@@ -20,16 +20,64 @@ MONTH = (
     r"Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|"
     r"Nov(?:ember)?|Dec(?:ember)?"
 )
-NAME_TOKEN = r"(?-i:(?:[A-Z][A-Za-z'\u2019/\-]+|[A-Z]\.))"
-NAME_VALUE = (
-    rf"(?:{NAME_TOKEN},[ \t]*{NAME_TOKEN}(?:[ \t]+{NAME_TOKEN})?|"
-    rf"{NAME_TOKEN}(?:[ \t]+{NAME_TOKEN}){{0,3}})"
+NAME_TOKEN = r"(?-i:(?:[A-Z014][A-Za-z014'\u2019/\-<>%&!\u00ad\u200b]+|[A-Z]\.))"
+NAME_SEPARATOR = r"[ \t]{1,3}(?![ \t])"
+NAME_HEADER = (
+    r"DOB|D0B|MRN|NPI|Address|H0ME|Phone|Fax|Email|Facility|Attending|Date|Encounter|Patient|"
+    r"Pat1ent|PATlENT|Name|N4ME|"
+    r"Provider|Physician|Doctor|Emergency|Member|Account|Visit|Claim|Order|Specimen|Device|"
+    r"Caregiver|Guardian|Partner|Surgeon|Oncologist|Psychiatrist|Pediatrician|Obstetrician|"
+    r"Radiologist|Pathologist|Neurologist|Consultant|Labs?|Medications?|Assessment|Plan|"
+    r"History|Diagnosis|Mother|Father|Spouse|Callback|Home|Study|Procedure|Collection|Treatment"
+    r"|Presented"
 )
-ID_VALUE = r"[A-Z0-9][A-Z0-9._/\-]{3,}"
-PHONE_VALUE = (
-    r"(?:\+?1[ .\-]?)?(?:\(\d{3}\)|\d{3})[ .\-]\d{3}[ .\-]\d{4}"
+LABELED_NAME_SEPARATOR = rf"[ \t]{{1,3}}(?![ \t])(?!(?:{NAME_HEADER})\b)"
+LABELED_CORE_NAME_VALUE = (
+    rf"(?:{NAME_TOKEN},[ \t]{{0,3}}{NAME_TOKEN}"
+    rf"(?:{LABELED_NAME_SEPARATOR}{NAME_TOKEN})?|"
+    rf"{NAME_TOKEN}(?:{LABELED_NAME_SEPARATOR}{NAME_TOKEN}){{0,3}})"
+)
+CLINICIAN_PREFIX = r"(?:(?:Dr|Doctor|Provider|Physician)\.?[ \t\r\n]+)?"
+LABELED_NAME_VALUE = (
+    rf"{CLINICIAN_PREFIX}{LABELED_CORE_NAME_VALUE}"
+    rf"(?:[ \t]*\r?\n[ \t]*(?!(?:{NAME_HEADER})\b){LABELED_CORE_NAME_VALUE}"
+    rf"(?![ \t]+[a-z]))?"
+)
+FACILITY_TOKEN = r"(?-i:[A-Z][A-Za-z0-9'\u2019/\-<>%&!\u00ad\u200b]*)"
+FACILITY_VALUE = rf"{FACILITY_TOKEN}(?:{NAME_SEPARATOR}{FACILITY_TOKEN}){{0,7}}"
+FACILITY_DESIGNATOR = (
+    r"(?-i:(?:Dialysis|Clinic|Center|Hospital|Pavilion|Medical|Imaging|Unit|Annex))"
+)
+CONTEXTUAL_FACILITY_VALUE = rf"(?:{FACILITY_TOKEN}{NAME_SEPARATOR}){{1,7}}{FACILITY_DESIGNATOR}"
+LABELED_FACILITY_VALUE = (
+    rf"{FACILITY_VALUE}"
+    rf"(?:[ \t]*\r?\n[ \t]*(?!(?:{NAME_HEADER})\b){FACILITY_VALUE})?"
+)
+ID_VALUE = (
+    r"[A-Z0-9](?:(?:[._/\-<>%&!|?@~^+]\r?\n(?=[A-Z0-9]))|"
+    r"[A-Z0-9._/\-{}\[\]<>%&!|?@~^+\u00ad\u200b]){2,}[A-Z0-9]"
+)
+REQUIRED_LABEL_DELIMITER = r"[ \t]*(?:[:#=\-{}\[\].<>]{1,8})[ \t]*"
+OPTIONAL_LABEL_DELIMITER = r"[ \t]*(?:[:#=\-{}\[\].<>]{1,8}[ \t]*)?"
+PHONE_SEPARATOR = r"[ \t\r\n./\-]{1,5}"
+STANDARD_PHONE_VALUE = (
+    rf"(?:\+?1[ .\-]?)?(?:\(\d{{3}}\)|\d{{3}}){PHONE_SEPARATOR}"
+    rf"\d{{3}}{PHONE_SEPARATOR}\d{{4}}"
     r"(?:\s*(?:x|ext\.?)[ ]?\d{1,6})?"
 )
+OCR_PHONE_GAP = r"[ \t\r\n./_{}\[\]()<>%&!|?@~^+\-\u00ad\u200b]"
+OCR_PHONE_INTRA_GAP = rf"{OCR_PHONE_GAP}{{0,3}}"
+OCR_PHONE_GROUP_GAP = rf"{OCR_PHONE_GAP}{{1,5}}"
+OCR_PHONE_VALUE = (
+    rf"(?:\+?1{OCR_PHONE_GROUP_GAP})?"
+    rf"\d{OCR_PHONE_INTRA_GAP}\d{OCR_PHONE_INTRA_GAP}\d{OCR_PHONE_GROUP_GAP}"
+    rf"\d{OCR_PHONE_INTRA_GAP}\d{OCR_PHONE_INTRA_GAP}\d{OCR_PHONE_GROUP_GAP}"
+    rf"\d{OCR_PHONE_INTRA_GAP}\d{OCR_PHONE_INTRA_GAP}\d{OCR_PHONE_INTRA_GAP}\d"
+    r"(?:\s*(?:x|ext\.?)[ ]?\d{1,6})?"
+)
+PHONE_VALUE = rf"(?:{STANDARD_PHONE_VALUE}|{OCR_PHONE_VALUE})"
+EMAIL_GAP = r"[ \t\r\n\u00ad\u200b]{0,3}"
+EMAIL_DOT_GAP = r"[\r\n\u00ad\u200b]{0,3}"
 US_STATE = (
     r"Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|"
     r"Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|"
@@ -42,6 +90,25 @@ US_STATE = (
     r"MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY"
 )
 LOCATION_TOKEN = r"[A-Za-z][A-Za-z'\u2019./\-]*"
+OCR_NOISE = r"[ \t\r\n./_{}\[\]()<>%&!|?@~^+\-\u00ad\u200b]"
+OCR_STRONG_YEAR_BREAK = r"[ \t\r\n<>%&!|?@~^+\u00ad\u200b]"
+OCR_DIGIT_GAP = rf"{OCR_NOISE}{{0,4}}"
+OCR_STRONG_GAP = rf"{OCR_NOISE}{{0,3}}{OCR_STRONG_YEAR_BREAK}{OCR_NOISE}{{0,3}}"
+OCR_YEAR4 = (
+    rf"(?:1{OCR_DIGIT_GAP}9{OCR_DIGIT_GAP}\d{OCR_DIGIT_GAP}\d|"
+    rf"2{OCR_DIGIT_GAP}0{OCR_DIGIT_GAP}\d{OCR_DIGIT_GAP}\d)"
+)
+OCR_CORRUPTED_YEAR4 = (
+    rf"(?:1{OCR_STRONG_GAP}9{OCR_DIGIT_GAP}\d{OCR_DIGIT_GAP}\d|"
+    rf"1{OCR_DIGIT_GAP}9{OCR_STRONG_GAP}\d{OCR_DIGIT_GAP}\d|"
+    rf"1{OCR_DIGIT_GAP}9{OCR_DIGIT_GAP}\d{OCR_STRONG_GAP}\d|"
+    rf"2{OCR_STRONG_GAP}0{OCR_DIGIT_GAP}\d{OCR_DIGIT_GAP}\d|"
+    rf"2{OCR_DIGIT_GAP}0{OCR_STRONG_GAP}\d{OCR_DIGIT_GAP}\d|"
+    rf"2{OCR_DIGIT_GAP}0{OCR_DIGIT_GAP}\d{OCR_STRONG_GAP}\d)"
+)
+OCR_YEAR = rf"(?:{OCR_YEAR4}|\d{{2}})"
+OCR_ZIP5 = rf"(?:\d{OCR_DIGIT_GAP}){{4}}\d"
+OCR_NPI = rf"(?:\d{OCR_DIGIT_GAP}){{9}}\d"
 
 
 def _compile(pattern: str) -> re.Pattern[str]:
@@ -53,16 +120,21 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "labeled-name",
         "PERSON",
         _compile(
-            rf"\b(?:patient(?:\s+name)?|name|provider|physician|doctor|attending|"
-            rf"referring\s+provider|mother|father|spouse|emergency\s+contact)"
-            rf"\s*[:=\-]\s*(?P<value>{NAME_VALUE})"
+            rf"\b(?:pat[iIl1]ent(?:\s+n[a4]me)?|pt|n[a4]me|provider|physician|doctor|attending|"
+            rf"referring\s+provider|mother|father|spouse|emergency\s+contact|caregiver|"
+            rf"guardian|partner|surgeon|oncologist|psychiatrist|pediatrician|obstetrician|"
+            rf"radiologist|pathologist|neurologist|consultant)"
+            rf"{REQUIRED_LABEL_DELIMITER}(?P<value>{LABELED_NAME_VALUE})"
         ),
         0.96,
     ),
     PatternSpec(
         "titled-clinician-name",
         "PERSON",
-        _compile(rf"\b(?:Dr|Doctor|Provider|Physician)\.?\s+(?P<value>{NAME_VALUE})"),
+        _compile(
+            rf"\b(?:Dr|Doctor|Provider|Physician)\.?\s+"
+            rf"(?P<value>{LABELED_CORE_NAME_VALUE})"
+        ),
         0.91,
     ),
     PatternSpec(
@@ -70,22 +142,51 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "PERSON",
         _compile(
             rf"\b(?:(?:his|her|their)[ \t]+)?(?:mother|father|sister|brother|wife|husband|"
-            rf"spouse|son|daughter|guardian|caregiver)[ \t]+(?P<value>{NAME_VALUE})"
+            rf"spouse|son|daughter|guardian|caregiver)[ \t]+"
+            rf"(?P<value>{LABELED_CORE_NAME_VALUE})"
         ),
         0.95,
+    ),
+    PatternSpec(
+        "concatenated-facility-name",
+        "LOCATION",
+        _compile(
+            r"(?-i:(?:[Aa]t|[Tt]o|[Ff]rom))"
+            r"(?P<value>(?-i:(?:[A-Z][a-z0-9'\u2019\-]{1,24}){2,}"
+            r"(?:Dialysis|Clinic|Center|Hospital|Pavilion|Unit|Annex)))\b"
+        ),
+        0.95,
+    ),
+    PatternSpec(
+        "contextual-facility-name",
+        "LOCATION",
+        _compile(rf"\b(?:at|from|to)[ \t]+(?P<value>{CONTEXTUAL_FACILITY_VALUE})\b"),
+        0.95,
+    ),
+    PatternSpec(
+        "labeled-facility-name",
+        "LOCATION",
+        _compile(
+            rf"\b(?:unit|facility|dialysis\s+(?:unit|center|facility))"
+            rf"{REQUIRED_LABEL_DELIMITER}(?P<value>{LABELED_FACILITY_VALUE})"
+        ),
+        0.96,
     ),
     PatternSpec(
         "email-address",
         "EMAIL_ADDRESS",
         _compile(
-            r"(?P<value>(?<![\w.+\-])[A-Z0-9._%+\-]+@(?:[A-Z0-9\-]+\.)+[A-Z]{2,63}(?![\w.\-]))"
+            rf"(?P<value>(?<![\w.+\-])[A-Z0-9._%+\-\u00ad\u200b]+{EMAIL_GAP}"
+            rf"@{EMAIL_GAP}(?:[A-Z0-9\-\u00ad\u200b]+{EMAIL_DOT_GAP}\."
+            rf"{EMAIL_DOT_GAP})+"
+            rf"[A-Z\u00ad\u200b]{{2,63}}(?![\w\-]))"
         ),
         0.99,
     ),
     PatternSpec(
         "web-url",
         "URL",
-        _compile(r"(?P<value>\b(?:https?://|www\.)[^\s<>{}\[\]()]+)"),
+        _compile(r"(?P<value>\b(?:https?://|www\.)[^\s<>{}\[\]()]+(?<![.,;:!?]))"),
         0.98,
     ),
     PatternSpec(
@@ -93,7 +194,7 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "IP_ADDRESS",
         _compile(
             r"(?P<value>(?<![\d.])(?:25[0-5]|2[0-4]\d|1?\d?\d)"
-            r"(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}(?![\d.]))"
+            r"(?:\.(?:25[0-5]|2[0-4]\d|1?\d?\d)){3}(?!\d|\.\d))"
         ),
         0.99,
     ),
@@ -119,8 +220,9 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "iso-date",
         "DATE",
         _compile(
-            r"(?P<value>(?<!\d)(?:19|20)\d{2}[\-/](?:0?[1-9]|1[0-2])"
-            r"[\-/](?:0?[1-9]|[12]\d|3[01])(?!\d))"
+            rf"(?P<value>(?<!\d){OCR_YEAR4}"
+            rf"{OCR_NOISE}{{1,8}}(?:0?[1-9]|1[0-2]){OCR_NOISE}{{1,8}}"
+            rf"(?:0?[1-9]|[12]\d|3[01])(?!\d))"
         ),
         0.97,
     ),
@@ -137,8 +239,8 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "punctuation-corrupted-date",
         "DATE",
         _compile(
-            r"(?P<value>(?<!\d)(?:0?[1-9]|1[0-2])[./_\-]{1,6}"
-            r"(?:0?[1-9]|[12]\d|3[01])[./_\-]{1,6}(?:(?:19|20)?\d{2})(?!\d))"
+            rf"(?P<value>(?<!\d)(?:0?[1-9]|1[0-2]){OCR_NOISE}{{1,8}}"
+            rf"(?:0?[1-9]|[12]\d|3[01]){OCR_NOISE}{{1,8}}{OCR_YEAR}(?!\d))"
         ),
         0.95,
     ),
@@ -147,9 +249,15 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "DATE",
         _compile(
             rf"(?P<value>\b(?:{MONTH})\.?\s+\d{{1,2}}(?:st|nd|rd|th)?"
-            rf"(?:,\s*|\s+)(?:19|20)\d{{2}}\b)"
+            rf"(?:,\s*|\s+){OCR_YEAR4}\b)"
         ),
         0.97,
+    ),
+    PatternSpec(
+        "corrupted-year",
+        "DATE",
+        _compile(rf"(?P<value>(?<!\d){OCR_CORRUPTED_YEAR4}(?!\d))"),
+        0.94,
     ),
     PatternSpec(
         "month-name-date",
@@ -161,8 +269,8 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "age-over-89",
         "AGE_OVER_89",
         _compile(
-            r"\b(?:age(?:d)?|(?:is|was))\s*[:=]?\s*"
-            r"(?P<value>(?:9\d|1[01]\d|120))\s*(?:years?|yrs?|y/?o)?\b"
+            r"\bage(?:d)?\s*[:=]?\s*(?P<value>(?:9\d|1[01]\d|120))"
+            r"\s*(?:years?|yrs?|y/?o)?\b"
         ),
         0.98,
     ),
@@ -191,8 +299,9 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "medical-record-number",
         "MEDICAL_RECORD_NUMBER",
         _compile(
-            rf"\b(?:MRN|medical\s+record(?:\s+(?:number|no\.?))?|chart(?:\s+(?:number|no\.?))?|"
-            rf"patient\s+id(?:entifier)?)\s*[:#=\-]?\s*(?P<value>{ID_VALUE})\b"
+            rf"\b(?:MRN|med[iIl1]cal\s+rec[o0]rd(?:\s+(?:number|n[o0]\.?))?|"
+            rf"chart(?:\s+(?:number|no\.?))?|"
+            rf"patient\s+id(?:entifier)?){OPTIONAL_LABEL_DELIMITER}(?P<value>{ID_VALUE})\b"
         ),
         0.99,
     ),
@@ -201,7 +310,8 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "HEALTH_PLAN_ID",
         _compile(
             rf"\b(?:member|subscriber|beneficiary|health\s+plan|insurance)"
-            rf"(?:\s+(?:id|identifier|number|no\.?))\s*[:#=\-]?\s*(?P<value>{ID_VALUE})\b"
+            rf"(?:\s+(?:id|identifier|number|no\.?)){OPTIONAL_LABEL_DELIMITER}"
+            rf"(?P<value>{ID_VALUE})\b"
         ),
         0.98,
     ),
@@ -210,7 +320,7 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "ACCOUNT_NUMBER",
         _compile(
             rf"\b(?:account|acct|billing)(?:\s+(?:id|number|no\.?))?"
-            rf"\s*[:#=\-]\s*(?P<value>{ID_VALUE})\b"
+            rf"{REQUIRED_LABEL_DELIMITER}(?P<value>{ID_VALUE})\b"
         ),
         0.97,
     ),
@@ -219,14 +329,15 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "LICENSE_NUMBER",
         _compile(
             rf"\b(?:medical\s+license|license|certificate|DEA)"
-            rf"(?:\s+(?:id|number|no\.?))?\s*[:#=\-]\s*(?P<value>{ID_VALUE})\b"
+            rf"(?:\s+(?:id|number|no\.?))?{REQUIRED_LABEL_DELIMITER}"
+            rf"(?P<value>{ID_VALUE})\b"
         ),
         0.97,
     ),
     PatternSpec(
         "provider-identifier",
         "UNIQUE_ID",
-        _compile(r"\bNPI\s*[:#=\-]?\s*(?P<value>\d{10})\b"),
+        _compile(rf"\bNPI{OPTIONAL_LABEL_DELIMITER}(?P<value>{OCR_NPI})(?!\d)"),
         0.99,
     ),
     PatternSpec(
@@ -235,7 +346,7 @@ PATTERNS: tuple[PatternSpec, ...] = (
         _compile(
             rf"\b(?:device|implant|pacemaker|pump|serial)"
             rf"(?:\s+(?:id|identifier|serial|number|no\.?))?"
-            rf"\s*[:#=\-]\s*(?P<value>{ID_VALUE})\b"
+            rf"{REQUIRED_LABEL_DELIMITER}(?P<value>{ID_VALUE})\b"
         ),
         0.96,
     ),
@@ -243,9 +354,10 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "vehicle-identifier",
         "VEHICLE_ID",
         _compile(
-            rf"\b(?:VIN|vehicle|license\s+plate|plate)"
-            rf"(?:\s+(?:id|identifier|number|no\.?))?"
-            rf"\s*[:#=\-]?\s*(?P<value>{ID_VALUE})\b"
+            rf"\b(?:VIN(?:\s+(?:id|identifier|number|no\.?))?|"
+            rf"(?:license\s+plate|plate)(?:\s+(?:id|identifier|number|no\.?))?|"
+            rf"vehicle\s+(?:id|identifier|number|no\.?))"
+            rf"\b{OPTIONAL_LABEL_DELIMITER}(?P<value>{ID_VALUE})\b"
         ),
         0.97,
     ),
@@ -255,7 +367,7 @@ PATTERNS: tuple[PatternSpec, ...] = (
         _compile(
             rf"\b(?:claim|case|encounter|visit|accession|order|specimen)"
             rf"(?:\s+(?:id|identifier|number|no\.?))"
-            rf"\s*[:#=\-]?\s*(?P<value>{ID_VALUE})\b"
+            rf"\s*(?:is\s+)?{OPTIONAL_LABEL_DELIMITER}(?P<value>{ID_VALUE})\b"
         ),
         0.94,
     ),
@@ -276,6 +388,15 @@ PATTERNS: tuple[PatternSpec, ...] = (
             r"(?P<value>(?:\d[ \t./_{}\[\]()<>\-]*){4}\d[}\])]?)(?!\d)"
         ),
         0.99,
+    ),
+    PatternSpec(
+        "postal-code-after-state",
+        "ZIP_CODE",
+        _compile(
+            rf",[ \t]*(?:{US_STATE})[ \t]+(?P<value>{OCR_ZIP5}(?:[ \t]*-[ \t]*\d{{4}})?)"
+            rf"(?!\d)"
+        ),
+        0.98,
     ),
     PatternSpec(
         "residence-city-before-state",
@@ -312,12 +433,13 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "street-address",
         "ADDRESS",
         _compile(
-            r"(?P<value>\b\d{1,6}\s+(?:[A-Z0-9][\w.'\u2019\-]*\s+){0,7}"
+            r"(?P<value>\b\d{1,6}[ \t]+"
+            r"(?:[A-Z0-9][\w.'\u2019\-]*[ \t]+){0,7}"
             r"(?:Street|St\.?|Avenue|Ave\.?|Road|Rd\.?|Boulevard|Blvd\.?|Drive|Dr\.?|"
-            r"Lane|Ln\.?|Court|Ct\.?|Parkway|Pkwy\.?|Highway|Hwy\.?|Way)"
-            r"(?:\s+(?:Apt|Apartment|Suite|Unit|#)\s*[A-Z0-9\-]+)?"
-            r"(?:,\s*[A-Z][A-Za-z.' \-]+)?(?:,\s*[A-Z]{2})?"
-            r"(?:\s+\d{5}(?:-\d{4})?)?)"
+            r"Lane|Ln\.?|Court|Ct\.?|Parkway|Pkwy\.?|Highway|Hwy\.?|Way)\b"
+            r"(?:[ \t]+(?:Apt|Apartment|Suite|Unit|#)[ \t]*[A-Z0-9\-]+)?"
+            r"(?:,[ \t]*[A-Z][A-Za-z.' \-]+)?(?:,[ \t]*[A-Z]{2}\b)?"
+            r"(?:[ \t]+\d{5}(?:-\d{4})?)?)"
         ),
         0.95,
     ),

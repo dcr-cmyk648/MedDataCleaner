@@ -24,15 +24,58 @@ Start with synthetic notes and then add an appropriately governed validation cor
 - Ages over 89 and dates implying such ages
 - Addresses, facilities, cities, counties, ZIP codes, URLs, email, phone, fax, and IP addresses
 - MRNs, account/member/claim/accession numbers, licenses, serials, plates, and local identifiers
-- OCR-like substitutions and broken whitespace
+- OCR-like substitutions, inserted punctuation, broken whitespace, and invisible formatting marks
 - Multiple people and repeated identifiers within one note
 - Clinical values that resemble identifiers and should not be removed
 
 Every production miss becomes a minimized synthetic regression test. Real PHI must never be added
 to the repository or its issue tracker.
 
+The browser development corpus also expands synthetic seeds across general medicine, emergency
+care, cardiology, oncology, psychiatry, surgery, pediatrics, obstetrics, radiology, pathology,
+neurology, and infectious disease. A deterministic seed generates baseline, OCR-confusable,
+line-wrap, noisy-EMR, and segmentation-noise variants. The segmentation profile inserts bounded
+punctuation, line breaks, zero-width spaces, and soft hyphens inside names, dates, contact data,
+facilities, and identifiers. Each generated case carries identifier-removal and
+clinical-preservation assertions so a failure is reproducible. This generated corpus supplements;
+it does not replace, the annotated governed corpus required for release.
+
+## Evidence behind the corruption profiles
+
+The synthetic mutations model documented failure classes rather than one-off spelling tricks:
+
+- The NHS CogStack de-identification evaluation simulated character substitutions and whitespace
+  insertion and reported a substantial recall decline as corruption increased, with its OCR-like
+  condition weaker than clean text: [CogStack evaluation](https://pmc.ncbi.nlm.nih.gov/articles/PMC6020175/).
+- An EHR OCR pipeline described predictable false negatives, false positives, substitutions,
+  insertions, and deletions that required regex-based postprocessing:
+  [EHR OCR pipeline](https://pmc.ncbi.nlm.nih.gov/articles/PMC3392858/).
+- Biomedical OCR postprocessing research notes that characters can be mistaken for punctuation,
+  changing token boundaries: [MiBio OCR postprocessing](https://pmc.ncbi.nlm.nih.gov/articles/PMC6197712/).
+- The Unicode Standard defines zero-width space as a break opportunity and soft hyphen as an
+  intraword break control, so both are included as copy/paste boundary hazards:
+  [Unicode special and format characters](https://www.unicode.org/versions/Unicode12.1.0/ch23.pdf).
+
+These sources justify the mutation classes, not a claim that the generated corpus represents the
+frequency or full distribution of errors from every EMR, scanner, browser, or clipboard path.
+
 ## Release gate
 
 An organizational owner should approve category-specific thresholds and a documented review
 workflow. A qualified privacy or compliance reviewer must determine whether Safe Harbor or Expert
 Determination is the applicable release method.
+
+The browser edition has an additional parity gate. The same annotated corpus must be processed by
+the installed Presidio/spaCy edition and the browser ONNX edition, with per-category differences
+reviewed rather than hidden inside aggregate scores. Browser release for real data requires:
+
+- Approved minimum recall, precision, and F2 thresholds for every supported identifier category
+- No unexplained regression from the installed reference implementation
+- Long-note, malformed-text, and cross-browser results on each supported browser and operating
+  system
+- A verified fail-closed response to missing model or WebAssembly files
+- A network-boundary test showing that input and output text never enters a request
+- Review of the GitHub Pages code-delivery and repository-governance controls
+
+Until all of those conditions are documented and approved, the Pages site must say that it is an
+experimental synthetic-data preview.

@@ -10,28 +10,105 @@ from med_data_cleaner.deid.policy import normalize_entity_type
 CLINICAL_HEADER_ALLOWLIST = frozenset(
     {
         "A1C",
+        "ADDRESS",
+        "ATTENDING",
         "BMP",
+        "CALLBACK",
+        "CAREGIVER",
+        "CARDIOLOGY",
         "CBC",
+        "CLINIC",
         "CMP",
+        "CONSULT",
+        "CONTACT",
+        "CONTINUE",
         "CT",
+        "DEPARTMENT",
+        "DISEASE",
+        "DISCHARGE",
         "DOB",
+        "D0B",
         "ECG",
+        "EEG",
+        "ECHOCARDIOGRAM",
         "ED",
         "EKG",
         "ER",
+        "EMERGENCY",
+        "FOLLOW-UP",
+        "FATHER",
+        "GENERAL",
+        "GUARDIAN",
         "HIPAA",
+        "HOME",
+        "H0ME",
+        "HUSBAND",
         "HPI",
         "ICU",
+        "INFECTIOUS",
+        "INFUSION",
+        "KT/V",
+        "MEDICAL",
+        "MEDICINE",
+        "MOOD",
+        "MOTHER",
+        "MONTHLY",
         "MRI",
         "MRN",
         "NPI",
+        "N4ME",
+        "NEUROLOGY",
+        "NOTE",
+        "OBSTETRICIAN",
+        "ONCOLOGY",
+        "ONCOLOGIST",
+        "PATIENT",
+        "PAT1ENT",
+        "PATLENT",
+        "PARTNER",
+        "PATHOLOGY",
+        "PATHOLOGIST",
+        "PEDIATRIC",
+        "PEDIATRICIAN",
         "PHI",
         "PMH",
+        "PORTAL",
+        "POTASSIUM",
+        "PTH",
         "PSH",
+        "PRENATAL",
+        "PROCEDURE",
+        "PROGRESS",
+        "PSYCHIATRY",
+        "PSYCHIATRIST",
+        "RADIOLOGY",
+        "RADIOLOGIST",
+        "REPORT",
         "ROS",
         "SSN",
+        "SUMMARY",
+        "SURGICAL",
+        "SURGEON",
+        "SURGERY",
+        "SPOUSE",
+        "STUDY",
+        "POSTOPERATIVE",
+        "URR",
+        "VISIT",
+        "WIFE",
+        "WORKSTATION",
     }
 )
+
+
+def _is_clinical_header(value: str) -> bool:
+    words = [
+        re.sub(r"^[^A-Z0-9]+|[^A-Z0-9/\-]+$", "", word) for word in value.strip().upper().split()
+    ]
+    words = [word for word in words if word]
+    return 0 < len(words) <= 5 and all(word in CLINICAL_HEADER_ALLOWLIST for word in words)
+
+
 GEOGRAPHIC_SUFFIX_PATTERN = re.compile(
     r"^[ \t]+(?:avenue|ave\.?|boulevard|blvd\.?|court|ct\.?|drive|dr\.?|highway|hwy\.?|"
     r"island|lane|ln\.?|parkway|pkwy\.?|road|rd\.?|street|st\.?)\b",
@@ -154,9 +231,27 @@ class PresidioDetector:
                 if segment_end <= segment_start:
                     continue
                 detected_text = text[segment_start:segment_end]
-                if detected_text.upper() in CLINICAL_HEADER_ALLOWLIST:
+                trailing_header = re.search(r"[.\s]+([A-Za-z0-9/]+)$", detected_text)
+                if (
+                    trailing_header
+                    and trailing_header.group(1).upper() in CLINICAL_HEADER_ALLOWLIST
+                ):
+                    segment_end = segment_start + trailing_header.start()
+                    detected_text = text[segment_start:segment_end]
+                    if not detected_text:
+                        continue
+                if _is_clinical_header(detected_text):
                     continue
                 if result.entity_type in {"LOCATION", "ORGANIZATION"}:
+                    if (
+                        len(detected_text) > 48
+                        and any(character.isdigit() for character in detected_text)
+                        and re.search(r"[a-z][A-Z]", detected_text)
+                    ):
+                        # OCR/run-on prose can become one model token. Deterministic recognizers
+                        # still remove the dates and facility inside it; treating the entire token
+                        # as a location would destroy the surrounding clinical narrative.
+                        continue
                     prefix = text[max(0, segment_start - 60) : segment_start]
                     suffix = text[segment_end : min(len(text), segment_end + 24)]
                     if (

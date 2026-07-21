@@ -1,0 +1,24 @@
+{
+  "name": "med-data-cleaner-browser",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "browser:assets": "python3 scripts/prepare_browser_assets.py",
+    "browser:build": "npm run browser:assets && vite build --config browser/vite.config.js",
+    "browser:corpus": "node browser/tests/adversarial-corpus.mjs",
+    "browser:smoke": "node browser/tests/browser-smoke.mjs",
+    "browser:test": "node --test browser/tests/*.test.js",
+    "browser:verify": "npm run browser:test && npm run browser:build"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "3.8.1"
+  },
+  "devDependencies": {
+    "playwright-core": "1.61.1",
+    "vite": "8.1.5"
+  }
+}

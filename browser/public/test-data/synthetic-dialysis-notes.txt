@@ -1,0 +1,209 @@
+MED DATA CLEANER — SYNTHETIC DIALYSIS NOTES
+============================================
+
+IMPORTANT: Every person, facility, address, identifier, date, and clinical combination below is
+invented for testing. This file contains no real patient records. Use one CASE at a time unless
+you are deliberately testing a long multi-note paste.
+
+
+============================== CASE HD-001 ==============================
+FOCUS: Cleanly formatted monthly hemodialysis note with common identifiers.
+
+MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE
+Patient Name: Maribel Quince
+DOB: 02/14/1978    MRN: TEST-HD-10482    Encounter ID: ENC-770041
+Address: 104 Fictional Harbor Way, Grand Rapids, MI 49503
+Phone: 202-555-0104    Email: maribel.quince@example.test
+Emergency contact: Tomas Quince, husband, 202-555-0105
+Facility: Blue Heron Dialysis Pavilion
+Attending: Dr. Rowan Vale    NPI: 0000000000
+Date of service: July 8, 2026
+
+The patient receives in-center hemodialysis every Tuesday, Thursday, and Saturday for 210 minutes.
+Prescription: blood-flow rate 400 mL/min, dialysate-flow rate 700 mL/min, 2 K bath, 2.5 Ca bath,
+bicarbonate 35. Estimated dry weight is 72.5 kg. Pre-treatment weight today was 75.1 kg and
+post-treatment weight was 72.7 kg. Pre-BP 158/86; post-BP 132/74. Interdialytic gain 2.6 kg.
+
+Access is a left upper-arm AV fistula with palpable thrill and audible bruit. No prolonged
+bleeding, erythema, drainage, or access pain. Delivered spKt/V 1.47 and URR 72%. Labs: hemoglobin
+10.4 g/dL, ferritin 488 ng/mL, TSAT 27%, potassium 4.9 mmol/L, bicarbonate 23 mmol/L, corrected
+calcium 9.1 mg/dL, phosphorus 5.6 mg/dL, intact PTH 438 pg/mL, albumin 3.8 g/dL.
+
+Medications reviewed: epoetin alfa 4,000 units IV weekly, iron sucrose 50 mg IV weekly, sevelamer
+carbonate 800 mg three tablets with meals, calcitriol 0.5 mcg during dialysis, carvedilol 12.5 mg
+twice daily, and renal multivitamin daily. She missed one binder dose while traveling. Continue
+current prescription, reinforce phosphorus education, and reassess dry weight next week.
+
+
+============================== CASE HD-002 ==============================
+FOCUS: User-reported malformed style, broken age, punctuation damage, and pharmacy context.
+
+The patient is a 4
+3 year old male with a history of schizoaffective disorder and polysubstance use disorder who
+presents for dialysis. He is on Zyprexa. He was most recently hospitalized 4....13.26. He lives in
+Kals-amazoo, Michigan with his mother Ma/rtha Quill. He likes to go to Walgreens to hang out. He
+will sometimes use Depakote. His zip code is 4444....{2]. His pharmacy is at
+-192480{{2234 farmington]]]lane in North//ville.
+
+chart no---KD//44.991   Patient ID=PX-4400-A   visit id VST_00991
+call back 202.555.0112 or mother 202 555 0113   e-mail: mq.family@example.test
+
+HD today x 3h45m via R forearm AV graft. pre-wt=88.4kg;; post wt 85.9 kg;;; goal 85.5kg.
+BP before 171//94 and after 139/81. UF 2.5 L. Kt/V=1.31. Hgb 9.8, K 5.2, CO2 21, Ca 8.7,
+phos 6.8, alb 3.5. No access drainage. Continue epoetin alfa and sevelamer. Medication names,
+doses, lab values, dialysis access, and clinical diagnoses should remain useful after cleaning.
+
+
+============================== CASE HD-003 ==============================
+FOCUS: OCR-like substitutions, split lines, headers, and run-together fields.
+
+SCANNED MONTHLY NOTE / OCR CONFIDENCE LOW
+PATlENT N4ME: DEV0N OAKLEY      MEDlCAL REC0RD N0: OCR-88I7Z
+D0B=11_03_1966     DATE=2.....27.....2026
+H0ME: 88 Examp1e Orchard Rd.,To1edo,OH 43604
+TEL (202) 555-0116 ext 4   FAX: 202-555-0117
+REFERRlNG PR0VlDER-Dr. Elian Moss
+
+Devon receives M/W/F hemodialysis. Right internal-jugular tunneled catheter remains in use while
+the left radiocephalic fistula matures. Catheter dressing is clean and dry. Blood cultures remain
+negative. Treatment time 240 min; BFR 350; DFR 600; UF goal 1.8 L. spKt/V 1.22.
+
+Hgb10.1|TSAT19%|ferritin312|Na137|K5.7|bicarb19|Ca8.4|phos7.2|PTH690|albumin3.3
+Plan: increase sevelamer to 2,400 mg with meals; continue sodium zirconium cyclosilicate on
+non-dialysis days; adjust ESA per protocol; repeat potassium. Education was provided by nurse
+Ari Venn. Follow-up sched-
+uled for Mar. 6th 2026 at Cedar Lantern Renal Center.
+
+
+============================== CASE HD-004 ==============================
+FOCUS: Peritoneal dialysis note with narrative dates, caregiver, and multiple contact channels.
+
+HOME PERITONEAL DIALYSIS VISIT
+Name - Priya Norr
+MRN # PD-2044-QZ | member number: MEM-000-4481 | account: ACCT-77220
+Visit date: September 21st, 2026
+Residence: 9 Placeholder Court Apt 2B, Madison, WI 53703
+Mobile 202-555-0120; portal e-mail priya.norr@example.test
+Caregiver: her sister Leena Norr, phone 202-555-0121
+
+Automated PD prescription: 9 hours nightly, 4 cycles, 2.2 L fill volume, 1.5% and 2.5% dextrose as
+directed, last fill icodextrin 1.5 L. Weekly total Kt/V 1.91. Residual urine output approximately
+550 mL/day. Weight 64.2 kg, target 63.8 kg, BP 146/82. Exit site is clean without tenderness or
+drainage. Effluent is clear. No fever or abdominal pain.
+
+Labs: sodium 136, potassium 4.2, bicarbonate 24, calcium 9.0, phosphorus 4.7, PTH 322, albumin 3.6,
+hemoglobin 10.8, ferritin 521, TSAT 31%. Medications include sucroferric oxyhydroxide 500 mg with
+meals, calcitriol 0.25 mcg Monday/Wednesday/Friday, losartan 50 mg daily, torsemide 40 mg daily,
+and gentamicin cream to the exit site. PET is scheduled for October 19, 2026. Continue current
+prescription and review technique with Leena at the next home visit.
+
+
+============================== CASE HD-005 ==============================
+FOCUS: Clinical negative control with no intended identifying information.
+
+Hemodialysis follow-up. The patient completed 3.5 hours via a left upper-arm AV fistula. The access
+had a strong thrill and bruit without erythema, drainage, infiltration, or prolonged bleeding.
+Pre-weight 81.2 kg, post-weight 78.9 kg, estimated dry weight 79.0 kg. Pre-BP 149/78 and post-BP
+128/70. Net ultrafiltration 2.3 L. No cramping, chest pain, fever, dyspnea, or dizziness.
+
+Monthly results: spKt/V 1.39, URR 70%, hemoglobin 10.6 g/dL, TSAT 24%, ferritin 604 ng/mL,
+potassium 4.8 mmol/L, bicarbonate 22 mmol/L, calcium 8.9 mg/dL, phosphorus 5.1 mg/dL, intact PTH
+510 pg/mL, albumin 3.7 g/dL. Continue epoetin alfa, iron sucrose, sevelamer carbonate, cinacalcet,
+calcitriol, amlodipine, and renal multivitamin at their current doses. Recheck phosphorus with the
+next monthly draw. This case should retain the clinical measurements, medications, and plan.
+
+
+============================== CASE HD-006 ==============================
+FOCUS: Age over 89, whitespace damage, relatives, dates, and repeated identity.
+
+Patient: Eudora Flint
+is 9
+4 years old. DOB 01-09-1932. MRN: ELDER-0094.
+Eudora Flint resides at 700 Fictional Elm Avenue, Buffalo, NY 14202 with her daughter Noor Flint.
+Home phone 202-555-0130. Daughter 202-555-0131. Emergency contact = Noor Flint.
+
+Seen by Doctor Cato Birch on Jan. 12, 2026 after an admission from 12/29/2025 through 01/04/2026.
+She resumed Monday/Wednesday/Friday hemodialysis at Silver Comet Kidney Center. She arrives by the
+van with plate TEST-94. Right upper-arm graft is functioning without signs of infection.
+
+Treatment 180 minutes with conservative UF because of intradialytic hypotension. Dry weight 51.0
+kg; pre-weight 52.1 kg; post-weight 51.2 kg. BP fell from 138/66 to 92/50 and recovered to 112/58
+after lowering UF. Kt/V 1.36. Hemoglobin 10.9, potassium 4.5, calcium 8.8, phosphorus 4.9,
+albumin 3.4. Midodrine 5 mg may be used before dialysis. Daughter Noor Flint confirmed the updated
+transport plan for January 16, 2026.
+
+
+============================== CASE HD-007 ==============================
+FOCUS: Many identifier categories and values resembling clinical numbers.
+
+Patient Name: Gideon Pike
+Social Security Number: 000-24-6789
+Medical record number: MRN-77/AB.44
+Health plan ID: PLAN-ZZ-9001
+Account number: ACCT-441199
+Claim ID: CLAIM-26-004821
+Case number: CASE-7782-A
+Encounter number: ENC-2026-77
+Accession number: LAB-AC-19904
+Order ID: ORD_88421
+Specimen ID: SPC-5511-K
+Medical license: TEST-MI-0044
+DEA: TESTDEA77
+NPI: 0000000000
+Dialysis machine device serial: DVC-TEST-8802
+Transport van VIN: TESTVIN0000000001
+License plate: TEST-771
+
+Provider: Dr. Imani Snow. Date: 2026-06-30. Gideon Pike receives dialysis at Amber Kite Renal Unit,
+22 Fictional Market Street, Detroit, MI 48201. Contact number 202-555-0140.
+
+Do not confuse identifiers with clinical values: BFR 400 mL/min, DFR 800 mL/min, treatment time
+240 min, temperature 36.5 C, sodium 138 mmol/L, potassium 4.6 mmol/L, bicarbonate 25 mmol/L,
+hemoglobin 11.0 g/dL, platelets 221 K/uL, ferritin 455 ng/mL, TSAT 29%, Kt/V 1.52, URR 74%, dry
+weight 90.4 kg, and UF goal 2.1 L. Medications: ferric citrate, carvedilol, hydralazine, epoetin
+alfa, and doxercalciferol. Preserve the clinical values and medication names.
+
+
+============================== CASE HD-008 ==============================
+FOCUS: Digital identifiers, URLs, network data, and concatenated discharge-to-dialysis prose.
+
+DISCHARGEADDENDUM>>>patient name:Jessa Wren;DOB=03/7/1985;MRN#RUNON-31008;phone=202.555.0150;
+email=jessa+wren@example.test;portal=https://patient.example.test/chart/RUNON-31008;
+workstation IP 192.0.2.44;home at 310 Example Signal Blvd Suite 5, Phoenix, AZ 85003.
+
+Admitted5/28/26forvolumeoverloadanddischarged06-02-2026toresumeHDatCopperMoonDialysis.
+Attending Dr. Soren Lake; referring provider: Nia Fern. Fax 202-555-0151. Mother: Orla Wren.
+Orla's telephone is (202) 555-0152.
+
+Hospital course: three dialysis sessions with improvement in edema and oxygen requirement.
+Echocardiogram reported EF 48%. Discharge weight 69.8 kg; outpatient target weight 69.5 kg.
+Tuesday/Thursday/Saturday prescription is 4 hours, BFR 400, DFR 700, 2 K bath. Left brachiocephalic
+fistula cannulated with 15-gauge needles. Hgb 9.7, K 4.4, bicarbonate 24, phosphorus 5.9, albumin
+3.2. Continue torsemide, metoprolol succinate, sevelamer, epoetin alfa, and iron sucrose. Next
+session: 6....04....26. Follow-up URL www.example.test/follow-up?case=RUNON-31008.
+
+
+============================== CASE HD-009 ==============================
+FOCUS: Longitudinal multi-note paste, inconsistent labels, duplicates, dictation, and corrections.
+
+--- NOTE A / TELEPHONE TRIAGE ---
+Caller: patient Kellan Rook. Chart number CR-20077. Date 08/11/2026, 07:42.
+Kellan reports cramping after yesterday's treatment. Callback 202-555-0160. He lives at
+55 Fictional River Lane, Lansing, MI 48933. Wife Tessa Rook joined the call. Advised fluid and
+sodium review; no chest pain, dyspnea, syncope, or access bleeding.
+
+--- NOTE B / ROUNDING, pasted without clean line endings ---
+Pt=ROOK,KELLAN|MRN CR-20077|DOS 8-12-26|unit=North Star Dialysis Annex|nephrologist Dr. Oren Lark|
+prewt 96.8kg postwt94.1kg EDW93.8kg preBP166/91 postBP136/76 UF2.7L access=L forearm AVF good
+thrill/bruit no infection Kt/V1.28 Hgb10.2 TSAT22 ferritin390 K5.0 CO2 22 Ca9.2 Phos6.3 PTH580
+Alb3.6. Continue epoetin alfa 3,000 units weekly and increase lanthanum to 1,000 mg with meals.
+Patient says the pharmacy at 404 Placeholder Parkway, Lansing MI, did not receive the prescription.
+
+--- NOTE C / LATE CORRECTION ---
+Correction entered August 13th, 2026 by Provider: Oren Lark. The estimated dry weight in NOTE B
+should read 94.3 kg, not 93.8 kg. The laboratory accession number is LAB-8810-RK. Follow-up with
+Kellan Rook at kellan.rook@example.test. Backup contact is his wife Tessa Rook, 202-555-0161.
+Next comprehensive review planned for 09/09/2026.
+
+
+============================== END OF PACK ==============================

@@ -24,6 +24,18 @@ AI service or any other remote endpoint.
 PDFs, office documents, images, DICOM, audio, databases, and automatic AI upload are explicitly
 out of scope for the first release.
 
+## Experimental no-install browser edition
+
+A GitHub Pages edition is under development so updates can arrive automatically without Python or
+an installer. It runs deterministic rules and a bundled ONNX named-entity model inside the browser;
+pasted notes are not uploaded or stored by the application.
+
+The browser edition currently requires synthetic test data because its detector has not yet passed
+the parity and governed-corpus validation required for real PHI. See
+[docs/BROWSER_EDITION.md](docs/BROWSER_EDITION.md) for the local data boundary, model provenance,
+cache-busting update behavior, development commands, and deployment process. The installed edition
+remains the reference implementation during validation.
+
 ## Easy installation
 
 No coding experience or Git is required. The current preview is not a normal signed Mac or Windows

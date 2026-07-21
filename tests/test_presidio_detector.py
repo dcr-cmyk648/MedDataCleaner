@@ -36,6 +36,18 @@ def test_presidio_does_not_remove_clinical_headers_or_year_only_dates() -> None:
     assert "2026" not in detected_values
 
 
+def test_presidio_does_not_remove_echocardiogram_as_a_location() -> None:
+    detector = PresidioDetector(model_name="en_core_web_lg")
+    if not detector.status.ready:
+        pytest.skip("The optional integration model is not installed")
+
+    text = "Echocardiogram reported EF 48%."
+    detections = detector.detect(text)
+    detected_values = {text[item.start : item.end] for item in detections}
+
+    assert "Echocardiogram" not in detected_values
+
+
 def test_presidio_preserves_age_phrases_and_medications_in_strong_clinical_context() -> None:
     detector = PresidioDetector(model_name="en_core_web_lg")
     if not detector.status.ready:
@@ -59,3 +71,18 @@ def test_presidio_preserves_generic_chain_in_visit_context() -> None:
     detected_values = {text[item.start : item.end] for item in detections}
 
     assert "Walgreens" not in detected_values
+
+
+def test_presidio_preserves_general_medical_section_headers() -> None:
+    detector = PresidioDetector(model_name="en_core_web_lg")
+    if not detector.status.ready:
+        pytest.skip("The optional integration model is not installed")
+
+    text = (
+        "MONTHLY EMERGENCY ONCOLOGY PEDIATRIC RADIOLOGY PATHOLOGY NEUROLOGY "
+        "INFECTIOUS SURGICAL POSTOPERATIVE SURGEON MOOD MOTHER EEG D0B H0ME CONTINUE"
+    )
+    detections = detector.detect(text)
+    detected_values = {text[item.start : item.end] for item in detections}
+
+    assert detected_values.isdisjoint(text.split())

@@ -5,32 +5,56 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="no-referrer" />
     <meta name="theme-color" content="#0b100e" />
-    <meta name="med-data-cleaner-token" content="__API_TOKEN__" />
-    <title>Med Data Cleaner</title>
-    <link rel="stylesheet" href="/static/styles.css" />
-    <script src="/static/app.js" defer></script>
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'none'; connect-src 'self'; img-src 'self' data:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; worker-src 'self'"
+    />
+    <title>Med Data Cleaner · Browser Preview</title>
+    <script type="module" src="/src/app.js"></script>
   </head>
   <body>
     <header class="app-header">
       <div>
-        <p class="eyebrow">LOCAL PHI REVIEW</p>
+        <p class="eyebrow">BROWSER-LOCAL PHI REVIEW · EXPERIMENTAL</p>
         <h1>Med Data Cleaner</h1>
-        <p class="subtitle">Review likely identifiers before creating a de-identified text file.</p>
+        <p class="subtitle">Review likely identifiers before using the de-identified text.</p>
       </div>
-      <div id="engineBadge" class="status-badge pending" role="status">Checking local engine…</div>
+      <div id="engineBadge" class="status-badge pending" role="status">
+        Loading local browser model…
+      </div>
     </header>
 
     <main>
-      <section class="notice" aria-label="Important limitation">
-        <strong>Human review is required.</strong>
-        This tool assists with de-identification and does not certify HIPAA compliance. Nothing is
-        uploaded by this application.
+      <section class="notice warning" aria-label="Experimental limitation">
+        <strong>Use synthetic test data only.</strong>
+        This browser edition has not yet demonstrated parity with the installed desktop edition.
+        Human review is always required, and the tool does not certify HIPAA compliance.
+        <a class="test-pack-link" href="./test-data/synthetic-dialysis-notes.txt" download>
+          Download the synthetic dialysis test pack
+        </a>
+      </section>
+
+      <section id="privacyNotice" class="notice privacy" aria-label="Local processing boundary">
+        <strong>Your note stays on this device.</strong>
+        The app and its detection model are downloaded from GitHub Pages, but pasted text is
+        processed only in this browser tab and is not saved or uploaded.
+      </section>
+
+      <section id="updateNotice" class="notice update hidden" aria-label="Update required">
+        <div>
+          <strong>A newer safety version is available.</strong>
+          New scans, exports, and clipboard copies are blocked until this tab updates. Clearing
+          will permanently remove the current note from this tab.
+        </div>
+        <button id="updateButton" class="secondary" type="button">Clear note and update</button>
       </section>
 
       <section class="toolbar" aria-label="Document actions">
-        <button id="scanButton" class="primary" type="button">Scan and clean</button>
+        <button id="scanButton" class="primary" type="button" disabled>Scan and clean</button>
         <button id="clearButton" class="secondary" type="button">Clear memory</button>
-        <span id="documentStatus" class="muted" aria-live="polite">Paste plain text to begin.</span>
+        <span id="documentStatus" class="muted" aria-live="polite">
+          Loading the local model; the first visit may take a minute.
+        </span>
       </section>
 
       <section class="workspace" aria-label="Text review workspace">
@@ -48,7 +72,7 @@
             maxlength="500000"
             spellcheck="false"
             autocomplete="off"
-            placeholder="Paste plain clinical text here…"
+            placeholder="Paste synthetic plain clinical text here…"
           ></textarea>
 
           <div class="selection-tools">
@@ -79,8 +103,8 @@
 
           <div id="exportGate" class="export-gate blocked">
             <div>
-              <p class="small-label">EXPORT GATE</p>
-              <p id="exportMessage">Run the local scan before exporting.</p>
+              <p class="small-label">OUTPUT GATE</p>
+              <p id="exportMessage">Run the local scan before exporting or copying.</p>
             </div>
             <label class="review-check">
               <input id="reviewCheckbox" type="checkbox" disabled />
@@ -88,6 +112,9 @@
             </label>
             <button id="exportButton" class="primary" type="button" disabled>
               Export de-identified .txt
+            </button>
+            <button id="copyButton" class="secondary" type="button" disabled>
+              Copy de-identified text
             </button>
           </div>
         </article>
@@ -108,7 +135,8 @@
     </main>
 
     <footer>
-      <span id="policyLabel">Strict local text policy</span>
+      <span id="policyLabel">Experimental browser text policy</span>
+      <span id="versionLabel">Version loading…</span>
       <span>Original text is not saved by the application.</span>
     </footer>
   </body>
