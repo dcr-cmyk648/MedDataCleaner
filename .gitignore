@@ -10,6 +10,16 @@ htmlcov/
 dist/
 build/
 *.egg-info/
+node_modules/
+
+# Generated browser-edition assets. The Pages build recreates these from pinned inputs.
+browser/public/models/
+browser/public/wasm/
+
+# Repository-local Codex thread lease and lock files.
+.codex-handoff.local.json
+.codex-handoff.local.lock
+.codex-handoff.local.tmp
 
 # Clinical data must never be committed.
 data/

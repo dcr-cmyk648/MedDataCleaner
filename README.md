@@ -24,6 +24,18 @@ AI service or any other remote endpoint.
 PDFs, office documents, images, DICOM, audio, databases, and automatic AI upload are explicitly
 out of scope for the first release.
 
+## Experimental no-install browser edition
+
+A GitHub Pages edition is under development so updates can arrive automatically without Python or
+an installer. It runs deterministic rules and a bundled ONNX named-entity model inside the browser;
+pasted notes are not uploaded or stored by the application.
+
+The browser edition currently requires synthetic test data because its detector has not yet passed
+the parity and governed-corpus validation required for real PHI. See
+[docs/BROWSER_EDITION.md](docs/BROWSER_EDITION.md) for the local data boundary, model provenance,
+cache-busting update behavior, development commands, and deployment process. The installed edition
+remains the reference implementation during validation.
+
 ## Easy installation
 
 No coding experience or Git is required. The current preview is not a normal signed Mac or Windows
@@ -80,6 +92,20 @@ shown.
 
 Keep the Terminal or black command window open while using the app. Closing that window stops the
 local app. Internet access is not needed after setup.
+
+### Updating when a new version is available
+
+Med Data Cleaner does not update itself or show update notifications yet. When a new version is
+available:
+
+1. Stop Med Data Cleaner and close its Terminal or command window.
+2. **[Download a fresh ZIP](https://github.com/dcr-cmyk648/MedDataCleaner/archive/refs/heads/main.zip)**.
+3. Unpack it into a new folder. Do not combine it with the old app folder.
+4. Run `INSTALL_MAC.command` or `INSTALL_WINDOWS.bat` in the new folder.
+5. Confirm the new copy opens, then delete the old app folder if you no longer need it.
+
+Files you intentionally exported remain in your browser's download location. The app does not
+store pasted notes in its own folder.
 
 For screenshots-in-words, common error messages, updates, and optional command-line instructions,
 see the **[beginner installation and troubleshooting guide](docs/INSTALLATION.md)**.

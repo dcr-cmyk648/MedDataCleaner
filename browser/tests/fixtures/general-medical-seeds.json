@@ -1,0 +1,201 @@
+[
+  {
+    "id": "general-medicine-discharge",
+    "specialty": "general medicine",
+    "text": "GENERAL MEDICINE DISCHARGE SUMMARY\nPatient Name: {{patient}}\nDOB: {{dob}}  MRN: {{mrn}}\nAddress: {{address}}\nPhone: {{phone}}  Email: {{email}}\nFacility: {{facility}}\nAttending: {{clinician}}  NPI: {{npi}}\nDate of service: {{date}}\nAdmitted with community-acquired pneumonia and sepsis. Creatinine improved from 1.8 to 1.2 mg/dL. Complete ceftriaxone and azithromycin, continue lisinopril 10 mg daily, and repeat CBC and BMP in one week.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Amara Venn", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "03/12/1964", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "GEN-00481", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{address}}", "value": "51 Fictional Harbor Way, Detroit, MI 48201", "entity_type": "ADDRESS" },
+      { "token": "{{phone}}", "value": "202-555-0101", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{email}}", "value": "amara.venn@example.test", "entity_type": "EMAIL_ADDRESS" },
+      { "token": "{{facility}}", "value": "Maple Lantern Hospital", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Ivo March", "entity_type": "PERSON" },
+      { "token": "{{npi}}", "value": "0000000000", "entity_type": "UNIQUE_ID", "kind": "npi" },
+      { "token": "{{date}}", "value": "July 18, 2026", "entity_type": "DATE" }
+    ],
+    "must_preserve": ["NPI", "community-acquired pneumonia", "sepsis", "Creatinine improved from 1.8 to 1.2 mg/dL", "ceftriaxone", "azithromycin", "lisinopril 10 mg", "CBC", "BMP"]
+  },
+  {
+    "id": "emergency-trauma",
+    "specialty": "emergency medicine",
+    "text": "EMERGENCY DEPARTMENT NOTE\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nSeen: {{date}} at {{facility}}\nHome: {{address}}\nEmergency contact: {{contact}}, {{phone}}\nPhysician: {{clinician}}\nPresented with substernal chest pain after a motor-vehicle collision. ECG showed sinus tachycardia without ST elevation. High-sensitivity troponin was 7 ng/L and repeat was 6 ng/L. CT chest showed no acute traumatic injury. Discharged with acetaminophen and return precautions.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Nolan Frost", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "08/03/1981", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "ED-77104", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{date}}", "value": "06/22/2026", "entity_type": "DATE" },
+      { "token": "{{facility}}", "value": "Harbor Test Emergency Center", "entity_type": "LOCATION" },
+      { "token": "{{address}}", "value": "208 Fictional Cedar Road, Toledo, OH 43604", "entity_type": "ADDRESS" },
+      { "token": "{{contact}}", "value": "Rhea Frost", "entity_type": "PERSON" },
+      { "token": "{{phone}}", "value": "202-555-0102", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{clinician}}", "value": "Dr. Aria Stone", "entity_type": "PERSON" }
+    ],
+    "must_preserve": ["Presented with substernal chest pain", "motor-vehicle collision", "ECG", "sinus tachycardia", "troponin was 7 ng/L", "CT chest", "acetaminophen"]
+  },
+  {
+    "id": "cardiology-follow-up",
+    "specialty": "cardiology",
+    "text": "CARDIOLOGY FOLLOW-UP\nPatient Name: {{patient}}\nDOB: {{dob}}  MRN: {{mrn}}  Encounter ID: {{encounter}}\nFacility: {{facility}}\nAttending: {{clinician}}\nVisit date: {{date}}\nCallback: {{phone}}\nHistory of heart failure with reduced ejection fraction. Echocardiogram reported EF 35%, improved from 25%. Weight 74.2 kg and BP 118/72. Continue sacubitril/valsartan, carvedilol 25 mg twice daily, spironolactone 25 mg daily, and furosemide 40 mg daily. Device interrogation showed no sustained ventricular arrhythmia; pacemaker serial: {{device}}.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Selene Ward", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "12/09/1959", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "CARD-11904", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{encounter}}", "value": "ENC-620041", "entity_type": "UNIQUE_ID" },
+      { "token": "{{facility}}", "value": "Amber Kite Heart Clinic", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Talia Reed", "entity_type": "PERSON" },
+      { "token": "{{date}}", "value": "05/14/2026", "entity_type": "DATE" },
+      { "token": "{{phone}}", "value": "202-555-0103", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{device}}", "value": "PM-TEST-8802", "entity_type": "DEVICE_ID" }
+    ],
+    "must_preserve": ["heart failure with reduced ejection fraction", "Echocardiogram reported EF 35%", "Weight 74.2 kg", "BP 118/72", "sacubitril/valsartan", "carvedilol 25 mg", "spironolactone", "furosemide 40 mg", "ventricular arrhythmia"]
+  },
+  {
+    "id": "oncology-infusion",
+    "specialty": "oncology",
+    "text": "MEDICAL ONCOLOGY INFUSION NOTE\nPatient: {{patient}}  DOB: {{dob}}\nMRN: {{mrn}}  Visit ID: {{visit}}\nFacility: {{facility}}\nOncologist: {{clinician}}\nCaregiver: {{caregiver}}  Phone: {{phone}}\nTreatment date: {{date}}\nCycle 4 day 1 modified FOLFOX for colon adenocarcinoma. ANC 2.4 K/uL, platelets 188 K/uL, hemoglobin 10.2 g/dL, creatinine 0.9 mg/dL, total bilirubin 0.7 mg/dL. Oxaliplatin, leucovorin, and fluorouracil administered through implanted port serial: {{device}}. No infusion reaction.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Darius Quill", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "04/27/1970", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "ONC-44072", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{visit}}", "value": "VISIT-99104", "entity_type": "UNIQUE_ID" },
+      { "token": "{{facility}}", "value": "Blue Comet Cancer Center", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Nia Rowan", "entity_type": "PERSON" },
+      { "token": "{{caregiver}}", "value": "Mara Quill", "entity_type": "PERSON" },
+      { "token": "{{phone}}", "value": "202-555-0104", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{date}}", "value": "04/30/2026", "entity_type": "DATE" },
+      { "token": "{{device}}", "value": "PORT-TEST-4811", "entity_type": "DEVICE_ID" }
+    ],
+    "must_preserve": ["Cycle 4 day 1", "modified FOLFOX", "colon adenocarcinoma", "ANC 2.4 K/uL", "platelets 188 K/uL", "hemoglobin 10.2 g/dL", "creatinine 0.9 mg/dL", "total bilirubin 0.7 mg/dL", "Oxaliplatin", "leucovorin", "fluorouracil", "No infusion reaction"]
+  },
+  {
+    "id": "psychiatry-progress",
+    "specialty": "psychiatry",
+    "text": "PSYCHIATRY PROGRESS NOTE\nPatient Name: {{patient}}\nDOB: {{dob}}  MRN: {{mrn}}\nAddress: {{address}}\nMother: {{mother}}  Phone: {{phone}}\nFacility: {{facility}}\nPsychiatrist: {{clinician}}\nDate: {{date}}\nHistory of schizoaffective disorder, bipolar type, and stimulant use disorder. Mood is anxious; affect is constricted. Denies suicidal or homicidal ideation and denies command hallucinations. Continue olanzapine 10 mg nightly and divalproex ER 1,000 mg nightly. Valproate level 68 mcg/mL. Safety plan reviewed.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Miko Lark", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "09/16/1992", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "PSY-82004", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{address}}", "value": "74 Fictional Willow Lane, Madison, WI 53703", "entity_type": "ADDRESS" },
+      { "token": "{{mother}}", "value": "Elara Lark", "entity_type": "PERSON" },
+      { "token": "{{phone}}", "value": "202-555-0105", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{facility}}", "value": "Silver Lantern Behavioral Clinic", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Oren Birch", "entity_type": "PERSON" },
+      { "token": "{{date}}", "value": "June 2, 2026", "entity_type": "DATE" }
+    ],
+    "must_preserve": ["schizoaffective disorder", "bipolar type", "stimulant use disorder", "Denies suicidal or homicidal ideation", "command hallucinations", "olanzapine 10 mg", "divalproex ER 1,000 mg", "Valproate level 68 mcg/mL", "Safety plan"]
+  },
+  {
+    "id": "surgery-postoperative",
+    "specialty": "surgery",
+    "text": "POSTOPERATIVE SURGERY NOTE\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nProcedure date: {{date}}\nFacility: {{facility}}\nSurgeon: {{clinician}}\nSpouse: {{spouse}}  Callback: {{phone}}\nPostoperative day 2 after laparoscopic right hemicolectomy. Incisions are clean, dry, and intact. Abdomen is soft with expected tenderness. WBC 9.8 K/uL, hemoglobin 11.1 g/dL. Advance to low-residue diet, continue enoxaparin prophylaxis, encourage ambulation, and remove Foley catheter. Implant serial: {{device}}.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Hana Birch", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "02/11/1976", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "SURG-33190", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{date}}", "value": "2026-05-19", "entity_type": "DATE" },
+      { "token": "{{facility}}", "value": "North Star Surgical Hospital", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Cato Moss", "entity_type": "PERSON" },
+      { "token": "{{spouse}}", "value": "Jalen Birch", "entity_type": "PERSON" },
+      { "token": "{{phone}}", "value": "202-555-0106", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{device}}", "value": "MESH-TEST-7781", "entity_type": "DEVICE_ID" }
+    ],
+    "must_preserve": ["Postoperative day 2", "laparoscopic right hemicolectomy", "Incisions are clean, dry, and intact", "WBC 9.8 K/uL", "hemoglobin 11.1 g/dL", "low-residue diet", "enoxaparin prophylaxis", "Foley catheter"]
+  },
+  {
+    "id": "pediatrics-asthma",
+    "specialty": "pediatrics",
+    "text": "PEDIATRIC CLINIC NOTE\nPatient Name: {{patient}}\nDOB: {{dob}}  MRN: {{mrn}}\nGuardian: {{guardian}}\nAddress: {{address}}\nPhone: {{phone}}\nPediatrician: {{clinician}}\nVisit date: {{date}}\nThe patient is 7 years old and weighs 24.6 kg. Mild persistent asthma with two nighttime symptoms this month. Lungs are clear without retractions. Continue fluticasone 44 mcg two puffs twice daily and albuterol two puffs every four hours as needed. Spacer technique reviewed.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Taro Moss", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "10/04/2018", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "PED-70218", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{guardian}}", "value": "Suri Moss", "entity_type": "PERSON" },
+      { "token": "{{address}}", "value": "16 Fictional Meadow Court, Phoenix, AZ 85003", "entity_type": "ADDRESS" },
+      { "token": "{{phone}}", "value": "202-555-0107", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{clinician}}", "value": "Dr. Mira Snow", "entity_type": "PERSON" },
+      { "token": "{{date}}", "value": "07/07/2026", "entity_type": "DATE" }
+    ],
+    "must_preserve": ["7 years old", "weighs 24.6 kg", "Mild persistent asthma", "Lungs are clear", "fluticasone 44 mcg", "albuterol two puffs", "Spacer technique"]
+  },
+  {
+    "id": "obstetrics-prenatal",
+    "specialty": "obstetrics",
+    "text": "PRENATAL VISIT\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nVisit date: {{date}}\nFacility: {{facility}}\nObstetrician: {{clinician}}\nPartner: {{partner}}  Phone: {{phone}}\nAt 28 weeks 4 days gestation by first-trimester ultrasound. Fetal heart rate 148 bpm, fundal height 29 cm, BP 122/76. One-hour glucose challenge was 116 mg/dL. Blood type O positive. Continue prenatal vitamin and low-dose aspirin 81 mg daily. No bleeding, contractions, or loss of fluid.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Lena Pike", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "06/08/1994", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "OB-12094", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{date}}", "value": "08/17/2026", "entity_type": "DATE" },
+      { "token": "{{facility}}", "value": "Cedar Moon Women's Clinic", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Rina Vale", "entity_type": "PERSON" },
+      { "token": "{{partner}}", "value": "Omar Pike", "entity_type": "PERSON" },
+      { "token": "{{phone}}", "value": "202-555-0108", "entity_type": "PHONE_NUMBER" }
+    ],
+    "must_preserve": ["28 weeks 4 days gestation", "Fetal heart rate 148 bpm", "fundal height 29 cm", "BP 122/76", "glucose challenge was 116 mg/dL", "Blood type O positive", "prenatal vitamin and low-dose aspirin 81 mg daily", "No bleeding, contractions, or loss of fluid"]
+  },
+  {
+    "id": "radiology-ct-report",
+    "specialty": "radiology",
+    "text": "RADIOLOGY REPORT\nPatient Name: {{patient}}  DOB: {{dob}}\nMRN: {{mrn}}  Accession number: {{accession}}  Order ID: {{order}}\nFacility: {{facility}}\nRadiologist: {{clinician}}\nStudy date: {{date}}\nCT abdomen and pelvis with IV contrast. Liver, spleen, pancreas, and adrenal glands are unremarkable. There is a 4 mm nonobstructing left renal calculus. No hydronephrosis, bowel obstruction, free air, or free fluid. Impression: nonobstructing left nephrolithiasis; no acute abdominal abnormality.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Orin Snow", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "11/23/1968", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "RAD-88103", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{accession}}", "value": "ACC-2026-77104", "entity_type": "UNIQUE_ID" },
+      { "token": "{{order}}", "value": "ORD-55821", "entity_type": "UNIQUE_ID" },
+      { "token": "{{facility}}", "value": "Copper Pine Imaging Center", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Eira Lark", "entity_type": "PERSON" },
+      { "token": "{{date}}", "value": "March 6, 2026", "entity_type": "DATE" }
+    ],
+    "must_preserve": ["CT abdomen and pelvis with IV contrast", "Liver, spleen, pancreas, and adrenal glands", "4 mm nonobstructing left renal calculus", "No hydronephrosis", "bowel obstruction", "nonobstructing left nephrolithiasis"]
+  },
+  {
+    "id": "pathology-biopsy",
+    "specialty": "pathology",
+    "text": "SURGICAL PATHOLOGY REPORT\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nSpecimen ID: {{specimen}}  Accession number: {{accession}}\nFacility: {{facility}}\nPathologist: {{clinician}}\nCollection date: {{date}}\nSpecimen: sigmoid colon polyp, cold snare. Final diagnosis: tubular adenoma, negative for high-grade dysplasia or invasive carcinoma. Gross description: one tan tissue fragment measuring 0.6 cm in greatest dimension, submitted entirely in one cassette.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Eva Rook", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "01/30/1957", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "PATH-44108", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{specimen}}", "value": "SPC-5511-K", "entity_type": "UNIQUE_ID" },
+      { "token": "{{accession}}", "value": "LAB-8810-RK", "entity_type": "UNIQUE_ID" },
+      { "token": "{{facility}}", "value": "Juniper Test Medical Center", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Imani Reed", "entity_type": "PERSON" },
+      { "token": "{{date}}", "value": "09/03/2026", "entity_type": "DATE" }
+    ],
+    "must_preserve": ["sigmoid colon polyp", "cold snare", "tubular adenoma", "negative for high-grade dysplasia", "invasive carcinoma", "one tan tissue fragment", "0.6 cm", "one cassette"]
+  },
+  {
+    "id": "neurology-seizure",
+    "specialty": "neurology",
+    "text": "NEUROLOGY FOLLOW-UP\nPatient Name: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nHome: {{address}}  Phone: {{phone}}\nNeurologist: {{clinician}}\nDate: {{date}}\nFocal epilepsy with impaired awareness. No seizures for eight months. Neurologic examination shows fluent speech, symmetric facial movement, full strength, and normal gait. Continue levetiracetam 750 mg twice daily. EEG showed left temporal sharp waves; brain MRI showed no structural lesion. Driving precautions reviewed.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Cora Vale", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "05/05/1988", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "NEURO-9902", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{address}}", "value": "90 Fictional Lake Drive, Buffalo, NY 14202", "entity_type": "ADDRESS" },
+      { "token": "{{phone}}", "value": "202-555-0109", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{clinician}}", "value": "Dr. Soren Finch", "entity_type": "PERSON" },
+      { "token": "{{date}}", "value": "10/12/2026", "entity_type": "DATE" }
+    ],
+    "must_preserve": ["Focal epilepsy with impaired awareness", "No seizures for eight months", "fluent speech", "full strength", "normal gait", "levetiracetam 750 mg", "EEG", "left temporal sharp waves", "brain MRI", "Driving precautions"]
+  },
+  {
+    "id": "infectious-disease-consult",
+    "specialty": "infectious disease",
+    "text": "INFECTIOUS DISEASE CONSULT\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nFacility: {{facility}}\nConsultant: {{clinician}}\nDate: {{date}}\nContact: {{phone}}  Email: {{email}}\nMethicillin-sensitive Staphylococcus aureus bacteremia associated with a removed peripheral catheter. Repeat blood cultures are negative. Transthoracic echocardiogram shows no vegetation. Continue cefazolin 2 g IV every 8 hours through the planned stop date. WBC 7.4 K/uL, creatinine 0.8 mg/dL, ALT 24 U/L. Monitor weekly CBC and CMP.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Juno Fern", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "07/19/1979", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "ID-44812", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{facility}}", "value": "Golden Heron Medical Pavilion", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Noa Flint", "entity_type": "PERSON" },
+      { "token": "{{date}}", "value": "11/02/2026", "entity_type": "DATE" },
+      { "token": "{{phone}}", "value": "202-555-0110", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{email}}", "value": "juno.fern@example.test", "entity_type": "EMAIL_ADDRESS" }
+    ],
+    "must_preserve": ["Methicillin-sensitive Staphylococcus aureus bacteremia", "peripheral catheter", "blood cultures are negative", "Transthoracic echocardiogram", "no vegetation", "Continue cefazolin 2 g IV every 8 hours through the planned stop date", "WBC 7.4 K/uL", "creatinine 0.8 mg/dL", "ALT 24 U/L", "CBC", "CMP"]
+  }
+]

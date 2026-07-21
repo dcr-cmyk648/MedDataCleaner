@@ -106,16 +106,27 @@ after setup.
 
 ## Update to a newer version
 
-For the simplest update:
+There is no automatic updater or update notification yet. When you are told that a new version is
+available, install it in a new folder so the old working copy remains available until you confirm
+the update.
 
 1. Stop Med Data Cleaner.
-2. Download a fresh ZIP using the link above.
-3. Unpack it into a new folder. Do not mix it into the old folder.
-4. Run the one-time setup file in the new folder.
-5. Confirm the new copy opens, then remove the old app folder if you no longer need it.
+2. Select **[Download the newest Med Data Cleaner ZIP](https://github.com/dcr-cmyk648/MedDataCleaner/archive/refs/heads/main.zip)**.
+3. Unpack the ZIP. Your computer may add a number to the folder name, such as
+   `MedDataCleaner-main 2`; that is okay.
+4. Move the new folder to a private location that is not shared or cloud-synced.
+5. Do not copy the old `.venv` folder into the new folder, and do not combine the two app folders.
+6. Run `INSTALL_MAC.command` or `INSTALL_WINDOWS.bat` in the new folder. A full setup may again
+   take 5–15 minutes.
+7. Open the new copy and try it with made-up text.
+8. After the new copy works, delete the old app folder if you no longer need it.
 
 Med Data Cleaner does not save the original pasted note in its app folder. Files you intentionally
-exported remain wherever your browser saved them.
+exported remain wherever your browser saved them. Check that location before deleting anything.
+
+If setup previously stopped with the message that spaCy requires pip or uv, you can instead place
+the updated setup file in that same app folder and rerun it. The setup safely reuses the existing
+private environment and retries the missing language-model step.
 
 ## Troubleshooting
 
@@ -123,6 +134,13 @@ exported remain wherever your browser saved them.
 
 Install Python 3.12 using Part 1, restart the computer, and run the Med Data Cleaner setup again.
 On Windows, make sure **Add python.exe to PATH** is selected in the Python installer.
+
+### spaCy says it requires pip or uv
+
+You do not need to install uv. This message came from an earlier setup file that did not expose
+the app's private copy of pip while downloading the language model. Download a fresh copy of Med
+Data Cleaner, unpack it into a new folder, and run the updated setup file. It is also safe to
+rerun the updated setup inside an existing app folder.
 
 ### The setup looks stuck
 
@@ -176,6 +194,8 @@ These commands require Git and Python 3.12.
 git clone https://github.com/dcr-cmyk648/MedDataCleaner.git
 cd MedDataCleaner
 python3.12 -m venv .venv
+export VIRTUAL_ENV="$PWD/.venv"
+export PATH="$VIRTUAL_ENV/bin:$PATH"
 .venv/bin/python -m pip install --upgrade pip
 .venv/bin/python -m pip install .
 .venv/bin/python -m spacy download en_core_web_lg
@@ -188,6 +208,8 @@ python3.12 -m venv .venv
 git clone https://github.com/dcr-cmyk648/MedDataCleaner.git
 cd MedDataCleaner
 py -3.12 -m venv .venv
+set "VIRTUAL_ENV=%CD%\.venv"
+set "PATH=%VIRTUAL_ENV%\Scripts;%PATH%"
 .venv\Scripts\python.exe -m pip install --upgrade pip
 .venv\Scripts\python.exe -m pip install .
 .venv\Scripts\python.exe -m spacy download en_core_web_lg

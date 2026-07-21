@@ -24,6 +24,20 @@ from med_data_cleaner.deid.presidio_detector import PresidioDetector
 from med_data_cleaner.deid.regex_detector import PLACEHOLDER_PATTERN, RegexDetector
 
 MAX_TEXT_LENGTH = 500_000
+CONTEXTUAL_TYPE_RECOGNIZERS = {
+    "LOCATION": frozenset({"concatenated-facility-name", "labeled-facility-name"}),
+    "PERSON": frozenset({"labeled-name", "relationship-name", "titled-clinician-name"}),
+    "UNIQUE_ID": frozenset({"other-contextual-identifier", "provider-identifier"}),
+}
+
+
+def _detection_rank(item: Detection) -> tuple[bool, int, float]:
+    contextual = CONTEXTUAL_TYPE_RECOGNIZERS.get(item.entity_type, frozenset())
+    return (
+        any(recognizer in contextual for recognizer in item.recognizers),
+        ENTITY_PRIORITY.get(item.entity_type, 0),
+        item.score,
+    )
 
 
 @dataclass(frozen=True, slots=True)
@@ -199,8 +213,8 @@ class DeidentificationPipeline:
                 current = candidate
                 continue
 
-            current_rank = (ENTITY_PRIORITY.get(current.entity_type, 0), current.score)
-            candidate_rank = (ENTITY_PRIORITY.get(candidate.entity_type, 0), candidate.score)
+            current_rank = _detection_rank(current)
+            candidate_rank = _detection_rank(candidate)
             winning_type = (
                 candidate.entity_type if candidate_rank > current_rank else current.entity_type
             )

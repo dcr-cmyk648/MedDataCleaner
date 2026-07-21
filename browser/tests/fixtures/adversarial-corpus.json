@@ -1,0 +1,149 @@
+[
+  {
+    "id": "ocr-column-headers",
+    "text": "PATlENT N4ME: DEV0N OAKLEY      MEDlCAL REC0RD N0: OCR-88I7Z\nD0B=11_03_1966 DATE=2.....27.....2026\nH0ME: 88 Examp1e Orchard Rd.,To1edo,OH 43604\nHgb10.1|TSAT19%|ferritin312|K5.7|PTH690",
+    "must_remove": ["DEV0N OAKLEY", "OCR-88I7Z", "11_03_1966", "2.....27.....2026", "43604"],
+    "must_preserve": ["Hgb10.1|TSAT19%|ferritin312|K5.7|PTH690"],
+    "placeholder_types": ["PERSON", "MEDICAL_RECORD_NUMBER", "DATE", "ADDRESS", "ZIP_CODE"]
+  },
+  {
+    "id": "punctuation-and-linebreak-damage",
+    "text": "The patient is a 4\n3 year old male. He is on Zyprexa and sometimes uses Depakote. Hospitalized 4....13.26. He lives in Kals-amazoo, Michigan with his mother Ma/rtha Quill. ZIP code 4444....{2]. Pharmacy at -192480{{2234 farmington]]]lane in North//ville.",
+    "must_remove": ["4....13.26", "Kals-amazoo", "Ma/rtha Quill", "4444....{2]", "-192480{{2234 farmington]]]lane", "North//ville"],
+    "must_preserve": ["4\n3 year old", "Zyprexa", "Depakote"],
+    "placeholder_types": ["DATE", "PERSON", "LOCATION", "ZIP_CODE", "ADDRESS"]
+  },
+  {
+    "id": "runon-facility-and-procedure",
+    "text": "Admitted5/28/26forvolumeoverloadanddischarged06-02-2026toresumeHDatCopperMoonDialysis. Echocardiogram reported EF 48%. Discharge weight 69.8 kg.",
+    "must_remove": ["5/28/26", "06-02-2026", "CopperMoonDialysis"],
+    "must_preserve": ["Admitted", "forvolumeoverloadanddischarged", "toresumeHDat", "Echocardiogram reported EF 48%", "Discharge weight 69.8 kg"],
+    "placeholder_types": ["DATE", "LOCATION"]
+  },
+  {
+    "id": "compact-rounding-columns",
+    "text": "Caller: patient Kellan Rook. Wife Tessa Rook joined the call. Pt=ROOK,KELLAN|MRN CR-20077|unit=North Star Dialysis Annex|nephrologist Dr. Oren Lark|Patient says the pharmacy at 404 Placeholder Parkway, Lansing MI, did not receive the prescription. The laboratory accession number is LAB-8810-RK. Follow-up with Kellan Rook at kellan.rook@example.test.",
+    "must_remove": ["Kellan Rook", "Tessa Rook", "ROOK,KELLAN", "CR-20077", "North Star Dialysis Annex", "Oren Lark", "404 Placeholder Parkway", "LAB-8810-RK", "kellan.rook@example.test"],
+    "must_preserve": ["joined the call", "did not receive the prescription", "laboratory accession number is"],
+    "placeholder_types": ["PERSON", "MEDICAL_RECORD_NUMBER", "LOCATION", "ADDRESS", "UNIQUE_ID", "EMAIL_ADDRESS"]
+  },
+  {
+    "id": "medications-and-chain-negative-control",
+    "text": "Patient name: Liora Finch. She is on Zyprexa, continues Depakote, and takes sevelamer carbonate 2,400 mg with meals. She likes to go to Walgreens to browse. Address: 10 Fictional Way, Detroit, MI 48201.",
+    "must_remove": ["Liora Finch", "10 Fictional Way", "Detroit", "48201"],
+    "must_preserve": ["Zyprexa", "Depakote", "sevelamer carbonate 2,400 mg", "Walgreens"],
+    "placeholder_types": ["PERSON", "ADDRESS"]
+  },
+  {
+    "id": "procedure-and-header-negative-control",
+    "text": "Patient: Aster Voss. Echocardiogram reported EF 52%. ECG showed sinus rhythm. CT and MRI were reviewed. CBC, CMP, PTH, Kt/V, URR, and A1C remain clinical labels.",
+    "must_remove": ["Aster Voss"],
+    "must_preserve": ["Echocardiogram", "EF 52%", "ECG", "CT", "MRI", "CBC", "CMP", "PTH", "Kt/V", "URR", "A1C"],
+    "placeholder_types": ["PERSON"]
+  },
+  {
+    "id": "contextual-identifiers",
+    "text": "Patient name: Gideon Pike. MRN: MRN-77/AB.44. Member ID PLAN-ZZ-9001. Account number: ACCT-441199. Claim ID CLAIM-26-004821. Accession number is LAB-AC-19904. Device serial: DVC-TEST-8802. Plate TEST-771.",
+    "must_remove": ["Gideon Pike", "MRN-77/AB.44", "PLAN-ZZ-9001", "ACCT-441199", "CLAIM-26-004821", "LAB-AC-19904", "DVC-TEST-8802", "TEST-771"],
+    "must_preserve": ["Patient name:", "Member ID", "Account number", "Accession number is"],
+    "placeholder_types": ["PERSON", "MEDICAL_RECORD_NUMBER", "HEALTH_PLAN_ID", "ACCOUNT_NUMBER", "UNIQUE_ID", "DEVICE_ID", "VEHICLE_ID"]
+  },
+  {
+    "id": "age-over-89-and-dates",
+    "text": "Patient: Eudora Flint is 9\n4 years old. DOB 01-09-1932. Seen January 12, 2026 after admission 12/29/2025. Daughter Noor Flint called.",
+    "must_remove": ["Eudora Flint", "9\n4", "01-09-1932", "January 12, 2026", "12/29/2025", "Noor Flint"],
+    "must_preserve": ["years old", "after admission", "called"],
+    "placeholder_types": ["PERSON", "AGE_OVER_89", "DATE"]
+  },
+  {
+    "id": "digital-contact-boundaries",
+    "text": "Name: Jessa Wren. Call 202.555.0150; fax 202-555-0151. Email jessa+wren@example.test. Portal https://patient.example.test/chart/TEST-31. Workstation IP 192.0.2.44.",
+    "must_remove": ["Jessa Wren", "202.555.0150", "202-555-0151", "jessa+wren@example.test", "https://patient.example.test/chart/TEST-31", "192.0.2.44"],
+    "must_preserve": ["Call", "fax", "Email", "Portal", ". Workstation IP"],
+    "placeholder_types": ["PERSON", "PHONE_NUMBER", "FAX_NUMBER", "EMAIL_ADDRESS", "URL", "IP_ADDRESS"]
+  },
+  {
+    "id": "peritoneal-dialysis-clinical-values",
+    "text": "Patient name: Priya Norr. MRN PD-2044-QZ. Automated PD: 9 hours, 4 cycles, 2.2 L fill, weekly Kt/V 1.91, urine output 550 mL/day. Potassium 4.2, phosphorus 4.7, albumin 3.6. Caregiver Leena Norr called 202-555-0121.",
+    "must_remove": ["Priya Norr", "PD-2044-QZ", "Leena Norr", "202-555-0121"],
+    "must_preserve": [". MRN", "Automated PD", "9 hours", "4 cycles", "2.2 L", "Kt/V 1.91", "Potassium 4.2", "phosphorus 4.7", "albumin 3.6"],
+    "placeholder_types": ["PERSON", "MEDICAL_RECORD_NUMBER", "PHONE_NUMBER"]
+  },
+  {
+    "id": "labeled-facilities",
+    "text": "Patient: Niko Vale. Facility: Blue Heron Dialysis Pavilion. Unit=Silver Comet Kidney Center. Dialysis center: Cedar Lantern Renal Unit. Continue hemodialysis 210 minutes.",
+    "must_remove": ["Niko Vale", "Blue Heron Dialysis Pavilion", "Silver Comet Kidney Center", "Cedar Lantern Renal Unit"],
+    "must_preserve": ["Continue hemodialysis 210 minutes"],
+    "placeholder_types": ["PERSON", "LOCATION"]
+  },
+  {
+    "id": "address-followed-by-prose",
+    "text": "Patient: Mira Quill. Pharmacy at 404 Placeholder Parkway, Lansing MI, did not receive sevelamer. Home: 72 Fictional Harbor Way, Grand Rapids, MI 49503. Potassium is 4.9 mmol/L.",
+    "must_remove": ["Mira Quill", "404 Placeholder Parkway", "Lansing", "72 Fictional Harbor Way", "Grand Rapids", "49503"],
+    "must_preserve": ["did not receive sevelamer", "Potassium is 4.9 mmol/L"],
+    "placeholder_types": ["PERSON", "ADDRESS"]
+  },
+  {
+    "id": "repeated-identities",
+    "text": "Patient name: Rowan Pike. Rowan Pike arrived with spouse Talia Pike. Talia Pike confirmed that Rowan Pike takes carvedilol 12.5 mg twice daily.",
+    "must_remove": ["Rowan Pike", "Talia Pike"],
+    "must_preserve": ["confirmed that", "takes carvedilol 12.5 mg twice daily"],
+    "placeholder_types": ["PERSON"]
+  },
+  {
+    "id": "city-state-and-zip",
+    "text": "Patient: Oona Birch. She lives in Grand Rapids, Michigan. Mailing address 87 Fictional Court, Buffalo, NY 14202. Dry weight 51.0 kg.",
+    "must_remove": ["Oona Birch", "Grand Rapids", "87 Fictional Court", "Buffalo", "14202"],
+    "must_preserve": ["Dry weight 51.0 kg"],
+    "placeholder_types": ["PERSON", "LOCATION", "ADDRESS"]
+  },
+  {
+    "id": "narrative-relative-and-provider",
+    "text": "The patient was seen by Doctor Cato Birch on July 8th, 2026. His mother Elara Birch and caregiver Soren Moss attended. Hemoglobin 10.4 g/dL and ferritin 488 ng/mL.",
+    "must_remove": ["Cato Birch", "July 8th, 2026", "Elara Birch", "Soren Moss"],
+    "must_preserve": ["Hemoglobin 10.4 g/dL", "ferritin 488 ng/mL"],
+    "placeholder_types": ["PERSON", "DATE"]
+  },
+  {
+    "id": "corrupted-postal-and-address",
+    "text": "Patient: Kira Lark. ZIP code is 4444....{2]. Pharmacy at -192480{{2234 farmington]]]lane in North//ville. Continue calcitriol 0.5 mcg.",
+    "must_remove": ["Kira Lark", "4444....{2]", "-192480{{2234 farmington]]]lane", "North//ville"],
+    "must_preserve": ["Continue calcitriol 0.5 mcg"],
+    "placeholder_types": ["PERSON", "ZIP_CODE", "ADDRESS", "LOCATION"]
+  },
+  {
+    "id": "clinical-number-negative-control",
+    "text": "Hemodialysis follow-up: BFR 400 mL/min, DFR 800 mL/min, treatment 240 min, sodium 138, potassium 4.6, bicarbonate 25, platelets 221 K/uL, ferritin 455, TSAT 29%, Kt/V 1.52, URR 74%, weight 90.4 kg, UF 2.1 L.",
+    "must_remove": [],
+    "must_preserve": ["BFR 400 mL/min", "DFR 800 mL/min", "platelets 221 K/uL", "ferritin 455", "Kt/V 1.52", "URR 74%", "weight 90.4 kg", "UF 2.1 L"],
+    "placeholder_types": []
+  },
+  {
+    "id": "sentence-final-email-and-url",
+    "text": "Patient: Veda Snow. Send to veda.snow@example.test. Then review www.example.test/follow-up?case=TEST-88. Continue epoetin alfa 4,000 units weekly.",
+    "must_remove": ["Veda Snow", "veda.snow@example.test", "www.example.test/follow-up?case=TEST-88"],
+    "must_preserve": [". Continue epoetin alfa 4,000 units weekly"],
+    "placeholder_types": ["PERSON", "EMAIL_ADDRESS", "URL"]
+  },
+  {
+    "id": "reported-random-ocr-insertions",
+    "text": "MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE\nPatient Name: Maribel\nQuince\nDOB: 02\n/14/1978    MRN: TEST-HD-10482    Encounter ID: ENC-770041\nAddress: 104 Fictional Harbor Way, Grand Rapids, MI 4950/3\nPhone: 202-555-0104    Email: maribel.quince@example.test\nEmergency contact: Tomas Quince, husband, 202-555-0105\nFacility: Blue Heron Dialysis Pavilion\nAttending: Dr. Rowan Vale    NPI: 00000000<>00\nDate of service: July 8, 20>26\nLabs: hemoglobin 10.4 g/dL, ferritin 488 ng/mL, TSAT 27%, potassium 4.9 mmol/L, phosphorus 5.6 mg/dL, PTH 438 pg/mL. Medications: epoetin alfa 4,000 units, iron sucrose 50 mg, sevelamer carbonate 800 mg, calcitriol 0.5 mcg, carvedilol 12.5 mg.",
+    "must_remove": ["Maribel", "Quince", "02\n/14/1978", "TEST-HD-10482", "ENC-770041", "104 Fictional Harbor Way", "4950/3", "202-555-0104", "maribel.quince@example.test", "Tomas", "202-555-0105", "Blue Heron", "Rowan", "Vale", "00000000<>00", "July 8, 20>26"],
+    "must_preserve": ["MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE", "hemoglobin 10.4 g/dL", "ferritin 488 ng/mL", "TSAT 27%", "potassium 4.9 mmol/L", "phosphorus 5.6 mg/dL", "PTH 438 pg/mL", "epoetin alfa 4,000 units", "iron sucrose 50 mg", "sevelamer carbonate 800 mg", "calcitriol 0.5 mcg", "carvedilol 12.5 mg"],
+    "placeholder_types": ["PERSON", "DATE", "MEDICAL_RECORD_NUMBER", "UNIQUE_ID", "ADDRESS", "ZIP_CODE", "PHONE_NUMBER", "EMAIL_ADDRESS", "LOCATION"]
+  },
+  {
+    "id": "reported-segmentation-noise-in-identifiers",
+    "text": "MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE\nPatient Name: Maribel\nQuince\nDOB: 02/14/1978    MRN: TES!\nT-HD-10482    Encounter ID: ENC-770041\nAddress: 104 Fictional Harbor Way, Grand Rapids, MI 49503\nPhone: 202-555-0104    Email: maribel.quince@example.test\nEmergency contact: Tomas Quince, husband, 202-5>55-0105\nFacility: Blue Heron Dialysis Pavilion\nAttending: Dr. Rowan Vale    NPI: 000%00000<>00\nDate of service: July 8, 202>6\nLabs: hemoglobin 10.4 g/dL, ferritin 488 ng/mL, TSAT 27%, potassium 4.9 mmol/L, phosphorus 5.6 mg/dL, PTH 438 pg/mL. Medications: epoetin alfa 4,000 units, iron sucrose 50 mg, sevelamer carbonate 800 mg, calcitriol 0.5 mcg, carvedilol 12.5 mg.",
+    "must_remove": ["Maribel", "Quince", "02/14/1978", "TES!\nT-HD-10482", "10482", "ENC-770041", "104 Fictional Harbor Way", "49503", "202-555-0104", "maribel.quince@example.test", "Tomas", "202-5>55-0105", "0105", "Blue Heron", "Rowan", "Vale", "000%00000<>00", "00000", "July 8, 202>6", "202>6"],
+    "must_preserve": ["MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE", "hemoglobin 10.4 g/dL", "ferritin 488 ng/mL", "TSAT 27%", "potassium 4.9 mmol/L", "phosphorus 5.6 mg/dL", "PTH 438 pg/mL", "epoetin alfa 4,000 units", "iron sucrose 50 mg", "sevelamer carbonate 800 mg", "calcitriol 0.5 mcg", "carvedilol 12.5 mg"],
+    "placeholder_types": ["PERSON", "DATE", "MEDICAL_RECORD_NUMBER", "UNIQUE_ID", "ADDRESS", "PHONE_NUMBER", "EMAIL_ADDRESS", "LOCATION"]
+  },
+  {
+    "id": "corrupted-year-segmentation-matrix",
+    "text": "Synthetic corrupted year matrix. Date A: 20%26. Date B: 20\n26. Date C: 202&6. Date D: 202>6. Date E: 20 26. Date F: 202​6. Date G: 202­6. Potassium 4.9 mmol/L; phosphorus 5.6 mg/dL; treatment time 210 minutes.",
+    "must_remove": ["20%26", "20\n26", "202&6", "202>6", "20 26", "202​6", "202­6"],
+    "must_preserve": ["Synthetic corrupted year matrix", "Potassium 4.9 mmol/L", "phosphorus 5.6 mg/dL", "treatment time 210 minutes"],
+    "placeholder_types": ["DATE"]
+  }
+]
