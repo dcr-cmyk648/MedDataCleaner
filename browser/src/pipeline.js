@@ -10,18 +10,35 @@ import { detectWithRules, isInsidePlaceholder } from "./rules.js";
 
 const CONTEXTUAL_TYPE_RECOGNIZERS = Object.freeze({
   LOCATION: new Set([
+    "city-after-street-address",
     "concatenated-facility-name",
     "contextual-facility-name",
     "labeled-facility-name",
+    "labeled-substate-geography",
+    "residence-city-before-state",
   ]),
-  PERSON: new Set(["labeled-name", "relationship-name"]),
+  PERSON: new Set([
+    "labeled-initials",
+    "labeled-lowercase-name",
+    "labeled-name",
+    "lowercase-relationship-name",
+    "relationship-name",
+  ]),
   PROVIDER: new Set([
     "labeled-provider-name",
     "referral-provider-name",
+    "run-on-provider-name",
     "titled-clinician-name",
   ]),
-  UNIQUE_ID: new Set(["other-contextual-identifier", "provider-identifier"]),
+  EMPLOYER: new Set(["labeled-employer-name"]),
+  UNIQUE_ID: new Set([
+    "other-contextual-identifier",
+    "provider-identifier",
+    "research-or-registry-identifier",
+    "trial-registry-or-authorization-code",
+  ]),
 });
+const GENERIC_MODEL_RECOGNIZER = "browser-onnx:distilbert-ner";
 
 function detectionRank(detection) {
   const contextualRecognizers = CONTEXTUAL_TYPE_RECOGNIZERS[detection.entityType];
@@ -84,10 +101,28 @@ export function mergeOverlaps(detections) {
     const currentRank = detectionRank(current);
     const candidateRank = detectionRank(candidate);
     const candidateWins = isHigherRank(candidateRank, currentRank);
+    const currentHasExactBoundary = current.recognizers.some(
+      (recognizer) => recognizer !== GENERIC_MODEL_RECOGNIZER,
+    );
+    const candidateHasExactBoundary = candidate.recognizers.some(
+      (recognizer) => recognizer !== GENERIC_MODEL_RECOGNIZER,
+    );
+    const exactBoundaryWinner =
+      currentHasExactBoundary !== candidateHasExactBoundary
+        ? currentHasExactBoundary
+          ? current
+          : candidate
+        : null;
     current = {
-      start: Math.min(current.start, candidate.start),
-      end: Math.max(current.end, candidate.end),
-      entityType: candidateWins ? candidate.entityType : current.entityType,
+      start: exactBoundaryWinner
+        ? exactBoundaryWinner.start
+        : Math.min(current.start, candidate.start),
+      end: exactBoundaryWinner ? exactBoundaryWinner.end : Math.max(current.end, candidate.end),
+      entityType: exactBoundaryWinner
+        ? exactBoundaryWinner.entityType
+        : candidateWins
+          ? candidate.entityType
+          : current.entityType,
       score: Math.max(current.score, candidate.score),
       recognizers: [...new Set([...current.recognizers, ...candidate.recognizers])].sort(),
     };

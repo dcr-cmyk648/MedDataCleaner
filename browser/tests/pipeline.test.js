@@ -51,7 +51,7 @@ test("uses provider placeholders while preserving referral purpose", async () =>
 
   assert.equal(
     result.cleaned_text,
-    "Patient: [PERSON_1]. Refer to [PROVIDER_1] for fistulogram on [DATE_1].",
+    "Patient: [PERSON_1]. Refer to Dr. [PROVIDER_1] for fistulogram on [DATE_1].",
   );
   assert.equal(result.export_allowed, true);
 });
@@ -128,6 +128,35 @@ test("unions overlaps and keeps the higher-priority entity label", () => {
       entityType: "ADDRESS",
       score: 0.9,
       recognizers: ["address", "person"],
+    },
+  ]);
+});
+
+test("uses deterministic boundaries instead of a broader generic-model span", () => {
+  const merged = mergeOverlaps([
+    {
+      start: 0,
+      end: 24,
+      entityType: "LOCATION",
+      score: 0.99,
+      recognizers: ["browser-onnx:distilbert-ner"],
+    },
+    {
+      start: 8,
+      end: 18,
+      entityType: "PERSON",
+      score: 0.96,
+      recognizers: ["labeled-name"],
+    },
+  ]);
+
+  assert.deepEqual(merged, [
+    {
+      start: 8,
+      end: 18,
+      entityType: "PERSON",
+      score: 0.99,
+      recognizers: ["browser-onnx:distilbert-ner", "labeled-name"],
     },
   ]);
 });

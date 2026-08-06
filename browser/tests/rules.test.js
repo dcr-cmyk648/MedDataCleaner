@@ -13,8 +13,24 @@ function detectedValues(text) {
   return values;
 }
 
-test("ports every deterministic desktop recognizer", () => {
-  assert.equal(PATTERNS.length, 39);
+test("includes the complete deterministic identifier families", () => {
+  const patternNames = new Set(PATTERNS.map((spec) => spec.name));
+  for (const requiredName of [
+    "labeled-name",
+    "labeled-provider-name",
+    "labeled-employer-name",
+    "labeled-ocr-social-security-number",
+    "ipv6-address",
+    "biometric-identifier",
+    "research-or-registry-identifier",
+    "trial-registry-or-authorization-code",
+    "blood-product-unit-identifier",
+    "city-after-street-address",
+    "labeled-substate-geography",
+  ]) {
+    assert(patternNames.has(requiredName), `missing ${requiredName}`);
+  }
+  assert(PATTERNS.length >= 50);
 });
 
 test("detects common synthetic note identifiers", () => {
@@ -74,7 +90,7 @@ test("detects names after cross-specialty clinician labels", () => {
   const detectedNames = detectedValues(text).get("PROVIDER");
 
   for (let index = 0; index < labels.length; index += 1) {
-    assert(detectedNames.has(`Dr. ${names[index]} Clinician`));
+    assert(detectedNames.has(`${names[index]} Clinician`));
   }
 });
 
@@ -131,7 +147,7 @@ test("handles compact chart labels, facility labels, identifiers with is, and se
   assert(!values.get("PERSON").has("Tessa Rook joined the"));
   assert(values.get("PERSON").has("ROOK,KELLAN"));
   assert(values.get("LOCATION").has("North Star Dialysis Annex"));
-  assert(values.get("ADDRESS").has("404 Placeholder Parkway, Lansing MI"));
+  assert(values.get("ADDRESS").has("404 Placeholder Parkway"));
   assert(values.get("UNIQUE_ID").has("LAB-8810-RK"));
   assert(values.get("EMAIL_ADDRESS").has("kellan.rook@example.test"));
 });
@@ -155,6 +171,14 @@ test("stops a tolerant email at sentence punctuation before a Portal label", () 
   assert(values.get("URL").has("https://example.test/chart/TEST-31"));
 });
 
+test("does not treat field-label words embedded in a URL as patient names", () => {
+  const text = "Portal: https://patient.example.test/chart/TEST-31";
+  const values = detectedValues(text);
+
+  assert(values.get("URL").has("https://patient.example.test/chart/TEST-31"));
+  assert.equal(values.get("PERSON")?.size ?? 0, 0);
+});
+
 test("detects reported random OCR insertions without fragmenting labeled names", () => {
   const text =
     "Patient Name: Maribel\nQuince\n" +
@@ -166,7 +190,7 @@ test("detects reported random OCR insertions without fragmenting labeled names",
   const values = detectedValues(text);
 
   assert(values.get("PERSON").has("Maribel\nQuince"));
-  assert(values.get("PROVIDER").has("Dr. Rowan Vale"));
+  assert(values.get("PROVIDER").has("Rowan Vale"));
   assert(values.get("DATE").has("02\n/14/1978"));
   assert(values.get("DATE").has("July 8, 20>26"));
   assert(values.get("ZIP_CODE").has("4950/3"));
@@ -186,7 +210,7 @@ test("detects line-broken and noisy labeled identifiers across general medical n
   const values = detectedValues(text);
 
   assert(values.get("PERSON").has("Mara Quill"));
-  assert(values.get("PROVIDER").has("Dr.\nIvo March"));
+  assert(values.get("PROVIDER").has("Ivo March"));
   assert(values.get("MEDICAL_RECORD_NUMBER").has("GEN]]-00481"));
   assert(values.get("UNIQUE_ID").has("VISIT-\n99104"));
   assert(values.get("PHONE_NUMBER").has("202-\n555-0101"));
@@ -205,7 +229,7 @@ test("handles OCR names and ISO dates without treating clinical values as ages o
   const values = detectedValues(text);
 
   assert(values.get("PERSON").has("Miko 1ark"));
-  assert(values.get("PROVIDER").has("Dr. 0ren Birch"));
+  assert(values.get("PROVIDER").has("0ren Birch"));
   assert(values.get("PERSON").has("Jalen B1rch"));
   assert(values.get("DATE").has("20>26-05-19"));
   assert(values.get("DATE").has("2026\n-05-20"));
@@ -222,8 +246,8 @@ test("does not absorb structural labels or clinical prose around names and stree
     "Continue cefazolin 2 g IV every 8 hours through the planned stop date.";
   const values = detectedValues(text);
 
-  assert(values.get("PROVIDER").has("Dr. Ivo March"));
-  assert(values.get("PROVIDER").has("Dr. Aria Stone"));
+  assert(values.get("PROVIDER").has("Ivo March"));
+  assert(values.get("PROVIDER").has("Aria Stone"));
   assert(
     ![...values.get("PROVIDER")].some(
       (value) => value.includes("D0B") || value.includes("NPI") || value.includes("Presented"),
@@ -275,7 +299,7 @@ test("preserves copied lab rows and relative plan timing that resemble identifie
   assert.equal(values.get("PHONE_NUMBER")?.size ?? 0, 0);
   assert.equal(values.get("DATE")?.size ?? 0, 0);
   assert.equal(values.get("ADDRESS")?.size ?? 0, 0);
-  assert(values.get("PROVIDER").has("Dr. Maya Hart"));
+  assert(values.get("PROVIDER").has("Maya Hart"));
 });
 
 test("uses a provider category without weakening patient-name detection", () => {
@@ -285,6 +309,6 @@ test("uses a provider category without weakening patient-name detection", () => 
   const values = detectedValues(text);
 
   assert(values.get("PERSON").has("Jessa Wren"));
-  assert(values.get("PROVIDER").has("Dr. Rowan Vale"));
-  assert(values.get("PROVIDER").has("Dr. Maya Hart"));
+  assert(values.get("PROVIDER").has("Rowan Vale"));
+  assert(values.get("PROVIDER").has("Maya Hart"));
 });

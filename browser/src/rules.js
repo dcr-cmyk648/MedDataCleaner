@@ -2,12 +2,19 @@ const MONTH =
   "Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|" +
   "Jul(?:y)?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?";
 const NAME_TOKEN = "(?:[A-Z014][A-Za-z014'’/\\-<>%&!\\u00AD\\u200B]+|[A-Z]\\.)";
+const LOWER_NAME_TOKEN = "[a-z][a-z0-9'’/\\-<>%&!\\u00AD\\u200B]{1,30}";
 const NAME_SEPARATOR = "[ \\t]{1,3}(?![ \\t])";
 const PATIENT_LABEL = "[Pp][Aa][Tt][iIl1][Ee][Nn][Tt]";
 const NAME_LABEL = "[Nn][Aa4][Mm][Ee]";
+const PERSON_FIELD_LABEL =
+  `(?:${PATIENT_LABEL}(?:[ \\t]+(?:[Ll]egal[ \\t]+)?${NAME_LABEL})?|[Pp][Tt]|` +
+  `${NAME_LABEL}|[Ii]nitials?|[Aa]lias|[Nn]ickname|AKA|` +
+  `[Mm]other|[Ff]ather|[Ss]pouse|[Ee]mergency[ \\t]+[Cc]ontact|[Cc]aregiver|` +
+  `[Gg]uardian|[Pp]artner)`;
 const RELATIONSHIP_LABEL =
   "(?:[Mm]other|[Ff]ather|[Ss]ister|[Bb]rother|[Ww]ife|[Hh]usband|[Ss]pouse|" +
-  "[Ss]on|[Dd]aughter|[Gg]uardian|[Cc]aregiver)";
+  "[Ss]on|[Dd]aughter|[Gg]uardian|[Cc]aregiver|[Pp]artner|[Rr]oommate|" +
+  "[Hh]ousemate|[Hh]ousehold[ \\t]+[Mm]ember|[Dd]omestic[ \\t]+[Pp]artner)";
 const POSSESSIVE_LABEL = "(?:[Hh]is|[Hh]er|[Tt]heir)";
 const CLINICIAN_LABEL =
   "(?:[Pp]rovider|[Pp]hysician|[Dd]octor|[Aa]ttending|[Rr]eferring[ \\t]+[Pp]rovider|" +
@@ -18,7 +25,8 @@ const CLINICIAN_LABEL =
   "[Oo]rthopedist|[Uu]rologist)";
 const NAME_HEADER =
   "(?:DOB|D0B|MRN|NPI|Address|H0ME|Phone|Fax|Email|Facility|Attending|Date|Encounter|Patient|" +
-  "Pat1ent|PATlENT|Name|N4ME|" +
+  "Pat1ent|PATlENT|Name|N4ME|Initials?|Alias|Nickname|AKA|SSN|Employer|" +
+  "MEDlCAL|REC0RD|N0|" +
   "Provider|Physician|Doctor|Emergency|Member|Account|Visit|Claim|Order|Specimen|Device|" +
   "Caregiver|Guardian|Partner|Surgeon|Oncologist|Psychiatrist|Pediatrician|Obstetrician|" +
   "Radiologist|Pathologist|Neurologist|Nephrologist|Consultant|Endocrinologist|Pulmonologist|" +
@@ -26,7 +34,8 @@ const NAME_HEADER =
   "Urologist|" +
   "Labs?|Medications?|Assessment|Plan|" +
   "History|Diagnosis|Mother|Father|Spouse|Callback|Home|Study|Procedure|Collection|" +
-  "Treatment|Presented|Refer|Referred|Referral)";
+  "Treatment|Presented|Refer|Referred|Referral|County|Precinct|State|Study|Subject|Trial|" +
+  "Registry|Authorization)";
 const LABELED_NAME_SEPARATOR = `[ \\t]{1,3}(?![ \\t])(?!${NAME_HEADER}\\b)`;
 const LABELED_CORE_NAME_VALUE =
   `(?:${NAME_TOKEN},[ \\t]{0,3}${NAME_TOKEN}` +
@@ -37,7 +46,9 @@ const LABELED_NAME_BODY =
   `${LABELED_CORE_NAME_VALUE}` +
   `(?:[ \\t]*\\r?\\n[ \\t]*(?!${NAME_HEADER}\\b)${LABELED_CORE_NAME_VALUE}` +
   `(?![ \\t]+[a-z]))?`;
-const LABELED_NAME_VALUE = `${CLINICIAN_PREFIX}${LABELED_NAME_BODY}`;
+const LOWER_LABELED_NAME_VALUE =
+  `${LOWER_NAME_TOKEN}(?:[ \\t]+(?!${NAME_HEADER}\\b)${LOWER_NAME_TOKEN}){0,3}`;
+const LOWER_RELATIONSHIP_NAME_VALUE = `${LOWER_NAME_TOKEN}(?:[ \\t]+${LOWER_NAME_TOKEN})?`;
 const FACILITY_TOKEN = "[A-Z][A-Za-z0-9'’/\\-<>%&!\\u00AD\\u200B]*";
 const FACILITY_VALUE = `${FACILITY_TOKEN}(?:${NAME_SEPARATOR}${FACILITY_TOKEN}){0,7}`;
 const FACILITY_DESIGNATOR =
@@ -47,6 +58,9 @@ const CONTEXTUAL_FACILITY_VALUE =
 const LABELED_FACILITY_VALUE =
   `${FACILITY_VALUE}` +
   `(?:[ \\t]*\\r?\\n[ \\t]*(?!${NAME_HEADER}\\b)${FACILITY_VALUE})?`;
+const ORGANIZATION_TOKEN = "[A-Za-z0-9][A-Za-z0-9&'’./\\-]{0,39}";
+const LABELED_ORGANIZATION_VALUE =
+  `${ORGANIZATION_TOKEN}(?:[ \\t]+(?!${NAME_HEADER}\\b)${ORGANIZATION_TOKEN}){0,7}`;
 const ID_VALUE =
   "[A-Z0-9](?:(?:[._/\\-<>%&!|?@~^+]\\r?\\n(?=[A-Z0-9]))|" +
   "[A-Z0-9._/\\-{}\\[\\]<>%&!|?@~^+\\u00AD\\u200B]){2,}[A-Z0-9]";
@@ -97,6 +111,22 @@ const OCR_CORRUPTED_YEAR4 =
 const OCR_YEAR = `(?:${OCR_YEAR4}|\\d{2})`;
 const OCR_ZIP5 = `(?:\\d${OCR_DIGIT_GAP}){4}\\d`;
 const OCR_NPI = `(?:\\d${OCR_DIGIT_GAP}){9}\\d`;
+const OCR_SSN_VALUE =
+  `\\d${OCR_PHONE_INTRA_GAP}\\d${OCR_PHONE_INTRA_GAP}\\d${OCR_PHONE_GROUP_GAP}` +
+  `\\d${OCR_PHONE_INTRA_GAP}\\d${OCR_PHONE_GROUP_GAP}` +
+  `\\d${OCR_PHONE_INTRA_GAP}\\d${OCR_PHONE_INTRA_GAP}\\d${OCR_PHONE_INTRA_GAP}\\d`;
+const OCR_MONTH =
+  `(?:0${OCR_NOISE}{0,2}[1-9]|1${OCR_NOISE}{0,2}[0-2]|[1-9])`;
+const OCR_DAY =
+  `(?:0${OCR_NOISE}{0,2}[1-9]|[12]${OCR_NOISE}{0,2}\\d|3${OCR_NOISE}{0,2}[01]|[1-9])`;
+const GEOGRAPHIC_WORD =
+  "(?:[A-Za-z]{1,3}\\.(?=[ \\t]+[A-Za-z])|[A-Za-z][A-Za-z'’/\\-]*)";
+const GEOGRAPHIC_FIELD_VALUE =
+  `${GEOGRAPHIC_WORD}(?:[ \\t]+` +
+  "(?:[A-Za-z]{1,3}\\.(?=[ \\t]+[A-Za-z])|[A-Za-z0-9][A-Za-z0-9'’/\\-]*)){0,6}";
+const STREET_DESIGNATOR =
+  "(?:Street|St\\.?|Avenue|Ave\\.?|Road|Rd\\.?|Boulevard|Blvd\\.?|Drive|Dr\\.?|" +
+  "Lane|Ln\\.?|Court|Ct\\.?|Parkway|Pkwy\\.?|Highway|Hwy\\.?|Way)";
 function pattern(name, entityType, source, score, flags = "gim") {
   return Object.freeze({ name, entityType, regex: new RegExp(source, flags), score });
 }
@@ -105,17 +135,32 @@ export const PATTERNS = Object.freeze([
   pattern(
     "labeled-name",
     "PERSON",
-    `\\b(?:${PATIENT_LABEL}(?:[ \\t]+${NAME_LABEL})?|[Pp][Tt]|${NAME_LABEL}|` +
-      `[Mm]other|[Ff]ather|[Ss]pouse|[Ee]mergency[ \\t]+[Cc]ontact|[Cc]aregiver|` +
-      `[Gg]uardian|[Pp]artner)` +
-      `${REQUIRED_LABEL_DELIMITER}(?<value>${LABELED_NAME_VALUE})`,
+    `\\b${PERSON_FIELD_LABEL}${REQUIRED_LABEL_DELIMITER}${CLINICIAN_PREFIX}` +
+      `(?<value>${LABELED_NAME_BODY})`,
     0.96,
+    "gm",
+  ),
+  pattern(
+    "labeled-initials",
+    "PERSON",
+    `\\b(?:[Ii]nitials?|AKA)${REQUIRED_LABEL_DELIMITER}` +
+      "(?<value>[A-Z](?:[.\\- ]?[A-Z]){1,4}\\.?)",
+    0.99,
+    "gm",
+  ),
+  pattern(
+    "labeled-lowercase-name",
+    "PERSON",
+    `\\b${PERSON_FIELD_LABEL}${REQUIRED_LABEL_DELIMITER}` +
+      `(?<value>${LOWER_LABELED_NAME_VALUE})`,
+    0.98,
     "gm",
   ),
   pattern(
     "labeled-provider-name",
     "PROVIDER",
-    `\\b${CLINICIAN_LABEL}${REQUIRED_LABEL_DELIMITER}(?<value>${LABELED_NAME_VALUE})`,
+    `\\b${CLINICIAN_LABEL}${REQUIRED_LABEL_DELIMITER}${CLINICIAN_PREFIX}` +
+      `(?<value>${LABELED_NAME_BODY})`,
     0.97,
     "gm",
   ),
@@ -132,7 +177,7 @@ export const PATTERNS = Object.freeze([
     "PROVIDER",
     `\\b(?:[Rr]efer(?:red)?[ \\t]+(?:to|with)|[Rr]eferral[ \\t]+to|` +
       `[Cc]onsult(?:ed)?[ \\t]+(?:with|by))` +
-      `[ \\t]+(?<value>${LABELED_NAME_VALUE})`,
+      `[ \\t]+${CLINICIAN_PREFIX}(?<value>${LABELED_NAME_BODY})`,
     0.94,
     "gm",
   ),
@@ -143,6 +188,31 @@ export const PATTERNS = Object.freeze([
       `(?<value>${LABELED_CORE_NAME_VALUE})`,
     0.95,
     "gm",
+  ),
+  pattern(
+    "lowercase-relationship-name",
+    "PERSON",
+    `\\b(?:${POSSESSIVE_LABEL}[ \\t]+)?${RELATIONSHIP_LABEL}[ \\t]+` +
+      `(?<value>${LOWER_RELATIONSHIP_NAME_VALUE})`,
+    0.97,
+    "gm",
+  ),
+  pattern(
+    "run-on-provider-name",
+    "PROVIDER",
+    "\\b(?:(?:Attending|Provider|Physician)[ \\t]*(?:Dr|Doctor)?|Dr|Doctor)\\.?" +
+      `${OPTIONAL_LABEL_DELIMITER}` +
+      "(?<value>[A-Z][a-z]{1,24}[A-Z][a-z]{1,24})" +
+      "(?=(?:documented|reported|ordered|recommended|noted|assessed|performed|reviewed))",
+    0.98,
+    "gm",
+  ),
+  pattern(
+    "labeled-employer-name",
+    "EMPLOYER",
+    "\\b(?:employer|workplace|company)" +
+      `${REQUIRED_LABEL_DELIMITER}(?<value>${LABELED_ORGANIZATION_VALUE})`,
+    0.99,
   ),
   pattern(
     "concatenated-facility-name",
@@ -188,10 +258,24 @@ export const PATTERNS = Object.freeze([
     0.99,
   ),
   pattern(
+    "ipv6-address",
+    "IP_ADDRESS",
+    "\\b(?:IPv6|IPv6[ \\t]+address)\\s*[:=]?\\s*" +
+      "(?<value>[0-9A-F]{1,4}(?::[0-9A-F]{0,4}){2,7})(?![0-9A-F:])",
+    0.99,
+  ),
+  pattern(
     "social-security-number",
     "US_SSN",
     "(?<value>(?<!\\d)\\d{3}[ \\-]?\\d{2}[ \\-]?\\d{4}(?!\\d))",
     0.99,
+  ),
+  pattern(
+    "labeled-ocr-social-security-number",
+    "US_SSN",
+    `\\b(?:SSN|social[ \\t]+security(?:[ \\t]+number)?)${OPTIONAL_LABEL_DELIMITER}` +
+      `(?<value>${OCR_SSN_VALUE})(?!\\d)`,
+    0.995,
   ),
   pattern(
     "fax-number",
@@ -200,6 +284,14 @@ export const PATTERNS = Object.freeze([
     0.99,
   ),
   pattern("phone-number", "PHONE_NUMBER", `(?<value>(?<!\\d)${PHONE_VALUE}(?!\\d))`, 0.96),
+  pattern(
+    "labeled-ocr-numeric-date",
+    "DATE",
+    `\\b(?:DOB|D0B|date[ \\t]+of[ \\t]+birth)${OPTIONAL_LABEL_DELIMITER}` +
+      `(?<value>${OCR_MONTH}${OCR_NOISE}{1,8}${OCR_DAY}${OCR_NOISE}{1,8}${OCR_YEAR})` +
+      "(?!\\d)",
+    0.995,
+  ),
   pattern(
     "iso-date",
     "DATE",
@@ -264,6 +356,13 @@ export const PATTERNS = Object.freeze([
     0.98,
   ),
   pattern(
+    "narrative-age-over-89",
+    "AGE_OVER_89",
+    "\\b(?:turns?|turned|is[ \\t]+now)[ \\t]+(?<value>(?:9\\d|1[01]\\d|120))" +
+      "(?=[ \\t]+(?:years?|yrs?|y/?o|after|today|this[ \\t]+year)\\b)",
+    0.98,
+  ),
+  pattern(
     "medical-record-number",
     "MEDICAL_RECORD_NUMBER",
     `\\b(?:MRN|med[iIl1]cal\\s+rec[oO0]rd(?:\\s+(?:number|n[oO0]\\.?))?|` +
@@ -299,6 +398,14 @@ export const PATTERNS = Object.freeze([
     0.99,
   ),
   pattern(
+    "biometric-identifier",
+    "BIOMETRIC_ID",
+    `\\b(?:voice[ -]?print|finger[ -]?print|retina|iris|biometric)` +
+      `(?:[ \\t]+(?:id|identifier|code|template))?${REQUIRED_LABEL_DELIMITER}` +
+      `(?<value>${ID_VALUE})\\b`,
+    0.99,
+  ),
+  pattern(
     "device-serial-number",
     "DEVICE_ID",
     `\\b(?:device|implant|pacemaker|pump|serial)(?:\\s+(?:id|identifier|serial|number|no\\.?))?` +
@@ -320,6 +427,30 @@ export const PATTERNS = Object.freeze([
     `\\b(?:claim|case|encounter|visit|accession|order|specimen)(?:\\s+(?:id|identifier|number|no\\.?))` +
       `\\s*(?:is\\s+)?${OPTIONAL_LABEL_DELIMITER}(?<value>${ID_VALUE})\\b`,
     0.94,
+  ),
+  pattern(
+    "research-or-registry-identifier",
+    "UNIQUE_ID",
+    "\\b(?:(?:research[ \\t]+)?participant|study|subject|protocol)" +
+      "(?:[ \\t]+(?:id|identifier|number|no\\.?))" +
+      `\\s*(?:is\\s+)?${OPTIONAL_LABEL_DELIMITER}(?<value>${ID_VALUE})\\b`,
+    0.98,
+  ),
+  pattern(
+    "trial-registry-or-authorization-code",
+    "UNIQUE_ID",
+    "\\b(?:trial[ \\t]+(?:record|id|identifier|number)|" +
+      "registry[ \\t]+(?:id|identifier|number)|" +
+      "authorization[ \\t]+(?:id|code|number))" +
+      `${OPTIONAL_LABEL_DELIMITER}(?<value>${ID_VALUE})\\b`,
+    0.98,
+  ),
+  pattern(
+    "blood-product-unit-identifier",
+    "DEVICE_ID",
+    `\\bblood[ \\t]+product[ \\t]+unit(?:[ \\t]+(?:id|identifier|number))?` +
+      `${REQUIRED_LABEL_DELIMITER}(?<value>${ID_VALUE})\\b`,
+    0.98,
   ),
   pattern(
     "postal-code",
@@ -348,6 +479,22 @@ export const PATTERNS = Object.freeze([
     0.96,
   ),
   pattern(
+    "city-after-street-address",
+    "LOCATION",
+    `\\b\\d{1,6}[ \\t]+(?:[A-Z0-9][A-Za-z0-9_.'’\\-]*[ \\t]+){0,7}` +
+      `${STREET_DESIGNATOR}(?:[ \\t]+(?:Apt|Apartment|Suite|Unit|#)[ \\t]*[A-Z0-9\\-]+)?` +
+      `,[ \\t]*(?<value>${LOCATION_TOKEN}(?:[ \\t]+${LOCATION_TOKEN}){0,4})` +
+      `(?=,[ \\t]*(?:${US_STATE})\\b)`,
+    0.98,
+  ),
+  pattern(
+    "labeled-substate-geography",
+    "LOCATION",
+    "\\b(?:county|precinct|parish|borough|township)" +
+      `${REQUIRED_LABEL_DELIMITER}(?<value>${GEOGRAPHIC_FIELD_VALUE})`,
+    0.99,
+  ),
+  pattern(
     "separator-corrupted-location",
     "LOCATION",
     "\\b(?:in|from|near|at)[ \\t]+(?<value>[A-Z][A-Za-z'’\\-]*(?:[/\\\\]{2,}[A-Za-z'’\\-]+)+)\\b",
@@ -358,19 +505,15 @@ export const PATTERNS = Object.freeze([
     "ADDRESS",
     "(?<value>(?<!\\w)[#\\-]?\\d[\\d{}\\[\\]()./\\\\_\\-]{0,30}[ \\t]+" +
       "(?:[A-Za-z][A-Za-z'’.\\-]*[ \\t]+){0,6}[A-Za-z][A-Za-z'’.\\-]*[\\]})[({./\\\\_\\-]{1,8}" +
-      "(?:Street|St\\.?|Avenue|Ave\\.?|Road|Rd\\.?|Boulevard|Blvd\\.?|Drive|Dr\\.?|Lane|Ln\\.?|" +
-      "Court|Ct\\.?|Parkway|Pkwy\\.?|Highway|Hwy\\.?|Way)\\b)",
+      `${STREET_DESIGNATOR}\\b)`,
     0.97,
   ),
   pattern(
     "street-address",
     "ADDRESS",
     "(?<value>\\b\\d{1,6}[ \\t]+(?:[A-Z0-9][A-Za-z0-9_.'’\\-]*[ \\t]+){0,7}" +
-      "(?:Street|St\\.?|Avenue|Ave\\.?|Road|Rd\\.?|Boulevard|Blvd\\.?|Drive|Dr\\.?|Lane|Ln\\.?|" +
-      "Court|Ct\\.?|Parkway|Pkwy\\.?|Highway|Hwy\\.?|Way)\\b" +
-      "(?:[ \\t]+(?:Apt|Apartment|Suite|Unit|#)[ \\t]*[A-Z0-9\\-]+)?" +
-      "(?:,[ \\t]*[A-Z][A-Za-z.' \\-]+)?(?:,[ \\t]*[A-Z]{2}\\b)?" +
-      "(?:[ \\t]+\\d{5}(?:-\\d{4})?)?)",
+      `${STREET_DESIGNATOR}\\b` +
+      "(?:[ \\t]+(?:Apt|Apartment|Suite|Unit|#)[ \\t]*[A-Z0-9\\-]+)?)",
     0.95,
   ),
 ]);
@@ -416,6 +559,13 @@ function isRelativeTimePhraseMisreadAsAddress(value) {
   return /^\d{1,3}[ \t]+(?:minutes?|hours?|days?|weeks?|months?|years?)\b/i.test(value);
 }
 
+function isNonProviderProductContext(text, start, value) {
+  if (value.trim().toUpperCase() !== "PEPPER") return false;
+  return /\b(?:drink|drinks|drank|drinking|consume|consumes|consumed)\s+Dr\.?\s*$/i.test(
+    text.slice(Math.max(0, start - 80), start),
+  );
+}
+
 export function detectWithRules(text) {
   const placeholders = placeholderSpans(text);
   const detections = [];
@@ -423,6 +573,13 @@ export function detectWithRules(text) {
   for (const spec of PATTERNS) {
     spec.regex.lastIndex = 0;
     for (const match of text.matchAll(spec.regex)) {
+      if (
+        ["labeled-initials", "labeled-lowercase-name", "labeled-name"].includes(spec.name) &&
+        match.index > 0 &&
+        /[A-Za-z0-9@./?&=#_\-]/.test(text[match.index - 1])
+      ) {
+        continue;
+      }
       const value = match.groups?.value ?? match[0];
       const relativeStart = match[0].indexOf(value);
       const start = match.index + Math.max(relativeStart, 0);
@@ -437,6 +594,15 @@ export function detectWithRules(text) {
         continue;
       }
       if (spec.entityType === "ADDRESS" && isRelativeTimePhraseMisreadAsAddress(value)) {
+        continue;
+      }
+      if (
+        spec.entityType === "PROVIDER" &&
+        /^(?:Dr|Doctor|Provider|Physician)\.?$/i.test(value.trim())
+      ) {
+        continue;
+      }
+      if (spec.name === "titled-clinician-name" && isNonProviderProductContext(text, start, value)) {
         continue;
       }
       if (

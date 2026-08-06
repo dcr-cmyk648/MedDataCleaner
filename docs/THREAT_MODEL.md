@@ -40,7 +40,8 @@ is satisfied.
   feature.
 - Raw text and matched substrings are never written to application logs or returned as finding
   metadata.
-- Overlapping detections are unioned before replacement.
+- Labeled deterministic detections set exact replacement boundaries when a broader generic-model
+  candidate overlaps them; other overlaps are unioned using identifier-category priority.
 - The transformed output is scanned again before export.
 - Export fails closed when a required detector is unavailable or residual findings remain.
 - A human review confirmation is required for every file export or clipboard copy.

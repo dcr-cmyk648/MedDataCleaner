@@ -33,6 +33,20 @@ Start with synthetic notes and then add an appropriately governed validation cor
 Every production miss becomes a minimized synthetic regression test. Real PHI must never be added
 to the repository or its issue tracker.
 
+The fully annotated browser balance gate is intentionally stricter than substring-only tests. Each
+synthetic source character belongs to exactly one of two sets:
+
+- An identifier span that must be fully covered by a selected finding of the expected type
+- A retention span that no selected finding may cross
+
+This catches both failure directions: missed identifiers and broad findings that erase clinical
+meaning, labels, punctuation, allowed states, year-only cohort information, medication or lab
+data, credentials, and referral context. The scope follows the identifier categories and
+date/geography distinctions in the
+[HHS de-identification guidance](https://www.hhs.gov/hipaa/for-professionals/special-topics/de-identification/index.html),
+but only an authorized privacy or compliance process can determine whether an actual data release
+meets Safe Harbor or Expert Determination requirements.
+
 The browser development corpus also expands synthetic seeds across general medicine, emergency
 care, cardiology, oncology, psychiatry, surgery, pediatrics, obstetrics, radiology, pathology,
 neurology, infectious disease, endocrinology, pulmonology, gastroenterology, rheumatology,
@@ -43,6 +57,18 @@ and soft hyphens inside names, dates, contact data, facilities, and identifiers.
 case carries identifier-removal, specialist-label, and clinical-preservation assertions so a
 failure is reproducible. This generated corpus supplements; it does not replace, the annotated
 governed corpus required for release.
+
+The August 6, 2026 local browser release run used the pinned ONNX model and passed:
+
+- 137 of 137 synthetic cases
+- 2,043 of 2,043 required identifier removals
+- 1,227 of 1,227 required retention assertions
+- 78 of 78 exact identifier spans and 93 of 93 protected spans in the 15 fully annotated balance
+  cases
+- The fail-closed residual scan and same-origin/no-note-transmission network gate
+
+These counts establish a repeatable regression baseline, not performance estimates for real-world
+notes.
 
 ## Evidence behind the corruption profiles
 

@@ -214,6 +214,7 @@ test("preserves multiword general-medical headings", () => {
 
 test("preserves clinical terms that the general model mislabels as people", () => {
   const terms = [
+    "failure",
     "Methicillin-sensitive",
     "creatinine",
     "total",
@@ -223,6 +224,21 @@ test("preserves clinical terms that the general model mislabels as people", () =
   const text = terms.join(" | ");
   const results = terms.map((word) => ({
     entity_group: "PER",
+    score: 0.99,
+    word,
+    start: text.indexOf(word),
+    end: text.indexOf(word) + word.length,
+  }));
+
+  assert.deepEqual(mapNerResults(text, 0, results), []);
+});
+
+test("preserves allowed states and split clinical eponyms", () => {
+  const text =
+    "Michigan Ohio MI OH. Uses a St. Jude mechanical valve and has Graves disease.";
+  const terms = ["Michigan", "Ohio", "MI", "OH", "St.", "Graves"];
+  const results = terms.map((word) => ({
+    entity_group: "LOC",
     score: 0.99,
     word,
     start: text.indexOf(word),
@@ -359,4 +375,18 @@ test("preserves reported medications and lab terms only in clinical contexts", (
     },
   ]);
   assert.equal(geographicText.slice(geographic[0].start, geographic[0].end), "Chloride");
+});
+
+test("preserves a medication when the model calls it a person", () => {
+  const text = "She continues Depakote and takes Zyprexa.";
+  const terms = ["Depakote", "Zyprexa"];
+  const results = terms.map((word) => ({
+    entity_group: "PER",
+    score: 0.99,
+    word,
+    start: text.indexOf(word),
+    end: text.indexOf(word) + word.length,
+  }));
+
+  assert.deepEqual(mapNerResults(text, 0, results), []);
 });

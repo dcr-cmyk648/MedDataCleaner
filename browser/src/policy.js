@@ -1,9 +1,10 @@
-export const POLICY_ID = "hipaa-safe-harbor-text-v1-browser-experimental";
+export const POLICY_ID = "hipaa-safe-harbor-text-v2-browser-experimental";
 export const MAX_TEXT_LENGTH = 500_000;
 
 export const PLACEHOLDER_LABELS = Object.freeze({
   PERSON: "PERSON",
   PROVIDER: "PROVIDER",
+  EMPLOYER: "EMPLOYER",
   LOCATION: "LOCATION",
   ADDRESS: "ADDRESS",
   ZIP_CODE: "ZIP_CODE",
@@ -42,6 +43,7 @@ export const ENTITY_PRIORITY = Object.freeze({
   FAX_NUMBER: 90,
   ADDRESS: 85,
   ZIP_CODE: 84,
+  EMPLOYER: 83,
   PROVIDER: 81,
   PERSON: 80,
   LOCATION: 79,

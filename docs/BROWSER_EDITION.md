@@ -37,7 +37,10 @@ still expose text.
 The browser pipeline ports the desktop deterministic recognizers and orchestration behavior:
 
 - Input limits and validation
-- Overlap union with identifier-category priority
+- Exact deterministic boundaries for labeled identifiers, even when the generic model proposes a
+  broader overlapping span
+- Identifier-category priority and overlap union when neither candidate has a more trustworthy
+  deterministic boundary
 - Stable document-local typed placeholders
 - Human exclusions and manually selected spans
 - A second residual scan
@@ -46,9 +49,15 @@ The browser pipeline ports the desktop deterministic recognizers and orchestrati
 
 The named-entity layer uses the Apache-2.0 `dslim/distilbert-NER` model through a pinned ONNX
 conversion. It recognizes people, locations, and organizations. The browser adapter retains the
-desktop medication-context, clinical-header, and generic-chain filters. The model is only a
-candidate replacement for the desktop spaCy layer: it was trained on news text rather than
-clinical notes and must be evaluated on the corpus described in [VALIDATION.md](VALIDATION.md).
+desktop medication-context, clinical-header, and generic-chain filters. It also protects common
+clinical eponyms, device terms, laboratory labels, medication contexts, credentials, and
+descriptive words that the news-trained model can mistake for names or locations. State names,
+state abbreviations, and year-only values remain available; cities, sub-state geography, ZIP
+codes, and date elements finer than a year are replaced. Provider names are replaced by default,
+while titles, credentials, referral purpose, procedure context, and year-only cohort information
+remain available for review. The model is only a candidate replacement for the desktop spaCy
+layer: it was trained on news text rather than clinical notes and must be evaluated on the corpus
+described in [VALIDATION.md](VALIDATION.md).
 
 The exact model revision and SHA-256 checksums are recorded in
 `browser/model-manifest.json`. `scripts/prepare_browser_assets.py` rejects any file whose checksum
@@ -116,19 +125,26 @@ For a broader local adversarial pass, keep the server running and use:
 npm run browser:corpus
 ```
 
-The corpus contains synthetic `must_remove` and `must_preserve` annotations. In addition to fixed
-regressions, deterministic seeds generate baseline, OCR-confusable, line-wrap, noisy-EMR, and
+The corpus contains synthetic removal and retention annotations. In addition to fixed regressions,
+deterministic seeds generate baseline, OCR-confusable, line-wrap, noisy-EMR, and
 segmentation-noise variants across twenty clinical specialties: general medicine, emergency
 medicine, cardiology, oncology, psychiatry, surgery, pediatrics, obstetrics, radiology, pathology,
 neurology, infectious disease, endocrinology, pulmonology, gastroenterology, rheumatology,
 dermatology, ophthalmology, orthopedics, and urology. The fifth profile covers inserted
-punctuation, intra-identifier line breaks, zero-width spaces, and soft hyphens. The current suite
-combines 100 generated cases with 22 focused regressions. It runs every case through the real
-browser model in Chrome, fails on a retained test identifier or lost clinical term, reports
-residual findings when the fail-closed export gate remains blocked, and repeats the same
-network-boundary check. New manual misses should be minimized into this corpus before their fixes
-are accepted. The annotations are a regression oracle, not proof of de-identification or a
-substitute for the governed validation described in `VALIDATION.md`.
+punctuation, intra-identifier line breaks, zero-width spaces, and soft hyphens. The suite combines
+100 generated cases, 22 focused regressions, and 15 fully annotated balance cases. In each balance
+case, every source character is classified as either an exact identifier span or protected
+retention text; a finding that crosses protected text fails even if the cleaned preview happens to
+look plausible.
+
+The runner processes all 137 cases through the real browser model in Chrome, fails on a retained
+test identifier or lost clinical term, requires exact typed coverage of fully annotated
+identifiers, reports residual findings when the fail-closed export gate remains blocked, and
+repeats the same network-boundary check. On August 6, 2026, the local release run passed all 2,043
+required removals and all 1,227 required retained spans. Those synthetic results are a regression
+oracle, not proof of de-identification or a substitute for the governed validation described in
+`VALIDATION.md`. New manual misses should be minimized into this corpus before their fixes are
+accepted.
 
 After the machine assertions pass, inspect the cleaned synthetic notes for plausible clinical or
 structural data loss. The runner supports `--show-output` for that semantic review, `--concise` for

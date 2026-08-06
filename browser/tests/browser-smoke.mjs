@@ -98,9 +98,9 @@ try {
     "The patient is a 4\n" +
       "3 year old male with a history of schizoaffective disorder and polysubstance use " +
       "disorder who presents for dialysis. He is on Zyprexa. He was most recently " +
-      "hospitalized [DATE_1]. He lives in [LOCATION_1], [LOCATION_2] with his mother " +
+      "hospitalized [DATE_1]. He lives in [LOCATION_1], Michigan with his mother " +
       "[PERSON_1]. He likes to go to Walgreens to hang out. He will sometimes use Depakote. " +
-      "His zip code is [ZIP_CODE_1]. His pharmacy is at [ADDRESS_1] in [LOCATION_3]",
+      "His zip code is [ZIP_CODE_1]. His pharmacy is at [ADDRESS_1] in [LOCATION_2]",
   );
 
   const ocrNote =

@@ -3,6 +3,7 @@ import { readFile } from "node:fs/promises";
 
 import { chromium } from "playwright-core";
 
+import { BALANCED_GATE_CASES } from "./fixtures/balanced-gate-corpus.js";
 import { generateGeneralMedicalCases } from "./fixtures/corruption-generator.js";
 
 const applicationUrl = process.env.MDC_BROWSER_URL ?? "http://127.0.0.1:4173/";
@@ -13,14 +14,31 @@ const fixedCases = JSON.parse(await readFile(fixtureUrl, "utf8"));
 const generatedCases = await generateGeneralMedicalCases();
 const onlyArgument = process.argv.find((argument) => argument.startsWith("--only="));
 const onlyPattern = onlyArgument ? new RegExp(onlyArgument.slice("--only=".length)) : null;
-const cases = [...fixedCases, ...generatedCases].filter(
+const cases = [...fixedCases, ...generatedCases, ...BALANCED_GATE_CASES].filter(
   (fixture) => !onlyPattern || onlyPattern.test(fixture.id),
 );
 const showOutput = process.argv.includes("--show-output");
 const concise = process.argv.includes("--concise");
 
 const browser = await chromium.launch({ executablePath, headless: true });
-const failures = [];
+const exclusionFailures = [];
+const retentionFailures = [];
+const safetyFailures = [];
+const gateMetrics = {
+  exclusionRequired: 0,
+  exclusionPassed: 0,
+  retentionRequired: 0,
+  retentionPassed: 0,
+};
+
+function overlaps(left, right) {
+  return left.start < right.end && right.start < left.end;
+}
+
+function covers(outer, inner) {
+  return outer.start <= inner.start && outer.end >= inner.end;
+}
+
 try {
   const page = await browser.newPage();
   const requests = [];
@@ -58,20 +76,54 @@ try {
     );
 
     const cleaned = await page.locator("#cleanedOutput").textContent();
+    const analysis = await page.evaluate(() => window.__mdcLastAnalysis);
+    const appliedFindings = (analysis?.findings ?? []).filter((finding) => finding.selected);
     if (showOutput) console.log(`OUTPUT ${fixture.id}\n${cleaned}\n`);
     for (const value of fixture.must_remove) {
+      gateMetrics.exclusionRequired += 1;
       if (cleaned.includes(value)) {
-        failures.push(`${fixture.id}: identifier remained: ${JSON.stringify(value)}\n${cleaned}`);
+        exclusionFailures.push(
+          `${fixture.id}: identifier remained: ${JSON.stringify(value)}\n${cleaned}`,
+        );
+      } else {
+        gateMetrics.exclusionPassed += 1;
       }
     }
     for (const value of fixture.must_preserve) {
+      gateMetrics.retentionRequired += 1;
       if (!cleaned.includes(value)) {
-        failures.push(`${fixture.id}: clinical text was lost: ${JSON.stringify(value)}\n${cleaned}`);
+        retentionFailures.push(
+          `${fixture.id}: clinical text was lost: ${JSON.stringify(value)}\n${cleaned}`,
+        );
+      } else {
+        gateMetrics.retentionPassed += 1;
       }
     }
     for (const entityType of fixture.placeholder_types) {
       if (!cleaned.includes(`[${entityType}_`)) {
-        failures.push(`${fixture.id}: missing ${entityType} placeholder\n${cleaned}`);
+        exclusionFailures.push(`${fixture.id}: missing ${entityType} placeholder\n${cleaned}`);
+      }
+    }
+    for (const expected of fixture.remove_spans ?? []) {
+      const typedCoverage = appliedFindings.some(
+        (finding) => finding.entity_type === expected.entity_type && covers(finding, expected),
+      );
+      if (!typedCoverage) {
+        exclusionFailures.push(
+          `${fixture.id}: ${expected.entity_type} span was not fully covered: ` +
+            `${JSON.stringify(expected.value)}\nfindings: ${JSON.stringify(appliedFindings)}\n` +
+            cleaned,
+        );
+      }
+    }
+    for (const protectedSpan of fixture.retain_spans ?? []) {
+      const collisions = appliedFindings.filter((finding) => overlaps(finding, protectedSpan));
+      if (collisions.length) {
+        retentionFailures.push(
+          `${fixture.id}: finding crossed protected source text: ` +
+            `${JSON.stringify(protectedSpan.value)}\ncollisions: ${JSON.stringify(collisions)}\n` +
+            cleaned,
+        );
       }
     }
     if (await page.locator("#reviewCheckbox").isDisabled()) {
@@ -91,14 +143,17 @@ try {
         { timeout: 180_000 },
       );
       const residualPass = await page.locator("#cleanedOutput").textContent();
-      failures.push(
+      safetyFailures.push(
         `${fixture.id}: export remained blocked after a complete local scan\n` +
           `residual findings: ${JSON.stringify(residualDetails)}\n` +
           `first pass: ${cleaned}\nsecond pass: ${residualPass}`,
       );
     }
 
-    if (!failures.some((failure) => failure.startsWith(`${fixture.id}:`))) {
+    const failed = [...exclusionFailures, ...retentionFailures, ...safetyFailures].some((failure) =>
+      failure.startsWith(`${fixture.id}:`),
+    );
+    if (!failed) {
       console.log(`PASS ${fixture.id}`);
     }
   }
@@ -113,14 +168,29 @@ try {
     "The adversarial corpus run transmitted synthetic note content",
   );
 
+  const failures = [...exclusionFailures, ...retentionFailures, ...safetyFailures];
   if (failures.length) {
-    const reportedFailures = concise
-      ? failures.map((failure) => failure.split("\n", 1)[0])
-      : failures;
+    const formatFailures = (label, values) => {
+      const reported = concise ? values.map((failure) => failure.split("\n", 1)[0]) : values;
+      return reported.length ? `${label} (${reported.length}):\n${reported.join("\n\n")}` : "";
+    };
     throw new Error(
-      `Adversarial corpus failed (${failures.length} findings):\n\n${reportedFailures.join("\n\n")}`,
+      [
+        `Adversarial corpus failed (${failures.length} findings).`,
+        formatFailures("EXCLUSION GATE", exclusionFailures),
+        formatFailures("RETENTION GATE", retentionFailures),
+        formatFailures("SAFETY/EXPORT GATE", safetyFailures),
+      ]
+        .filter(Boolean)
+        .join("\n\n"),
     );
   }
+  console.log(
+    `Exclusion gate passed: ${gateMetrics.exclusionPassed}/${gateMetrics.exclusionRequired}.`,
+  );
+  console.log(
+    `Retention gate passed: ${gateMetrics.retentionPassed}/${gateMetrics.retentionRequired}.`,
+  );
   console.log(`Adversarial corpus passed: ${cases.length} cases, ${requests.length} local GETs.`);
 } finally {
   await browser.close();

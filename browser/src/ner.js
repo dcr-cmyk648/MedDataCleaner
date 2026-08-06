@@ -12,6 +12,7 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "CONSULT",
   "CONTACT",
   "CONTINUE",
+  "COUNTY",
   "CT",
   "DEPARTMENT",
   "DERMATOLOGIST",
@@ -53,12 +54,14 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "MEDICATION",
   "MEDICATIONS",
   "MEDICINE",
+  "MD",
   "MOOD",
   "MOTHER",
   "MONTHLY",
   "MRI",
   "MRN",
   "NPI",
+  "NP",
   "N4ME",
   "NEUROLOGY",
   "NOTE",
@@ -73,6 +76,7 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "PAT1ENT",
   "PATLENT",
   "PARTNER",
+  "PA-C",
   "PATHOLOGY",
   "PATHOLOGIST",
   "PEDIATRIC",
@@ -81,6 +85,7 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "PMH",
   "PORTAL",
   "POTASSIUM",
+  "PRECINCT",
   "PLAN",
   "PTH",
   "PSH",
@@ -106,6 +111,7 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "SURGEON",
   "SURGERY",
   "SPOUSE",
+  "STATE",
   "STUDY",
   "POSTOPERATIVE",
   "URR",
@@ -114,10 +120,22 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "VISIT",
   "WIFE",
   "WORKSTATION",
+  "DO",
+  "RN",
+  "AKA",
+  "ALIAS",
+  "AUTHORIZATION",
+  "EMPLOYER",
+  "INITIALS",
+  "NICKNAME",
+  "REGISTRY",
+  "SUBJECT",
+  "TRIAL",
 ]);
 
 const CLINICAL_NER_EXCLUSIONS = new Set([
   "CREATININE",
+  "FAILURE",
   "METHICILLIN-SENSITIVE",
   "TOTAL",
   "TRIAMCINOLONE",
@@ -166,6 +184,21 @@ const CLINICAL_LAB_TERMS = new Set([
   "WBC",
 ]);
 
+const US_STATE_TERMS = new Set(
+  (
+    "Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|" +
+    "Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|" +
+    "Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|" +
+    "New Hampshire|New Jersey|New Mexico|New York|North Carolina|North Dakota|Ohio|" +
+    "Oklahoma|Oregon|Pennsylvania|Rhode Island|South Carolina|South Dakota|Tennessee|" +
+    "Texas|Utah|Vermont|Virginia|Washington|West Virginia|Wisconsin|Wyoming|" +
+    "AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|" +
+    "MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY"
+  )
+    .split("|")
+    .map((value) => value.toUpperCase()),
+);
+
 const SECTION_MARKER =
   /\b(MEDICATION(?:S|[ \t]+LIST)?|LAB(?:S|[ \t]+RESULTS?)?|PLAN|ASSESSMENT|DIAGNOSIS|HISTORY)\b/gi;
 const MEDICATION_DOSE_SUFFIX =
@@ -210,12 +243,23 @@ function isClinicalHeader(value) {
   );
 }
 
-function isClinicalNerExclusion(value, suffix) {
+function isClinicalNerExclusion(value, prefix, suffix) {
   const normalized = value.trim().toUpperCase().replace(/\s+/g, " ");
   return (
     CLINICAL_NER_EXCLUSIONS.has(normalized) ||
-    (normalized === "CROHN" && /^[ \t]+(?:disease|colitis)\b/i.test(suffix)) ||
-    (normalized === "FOLEY" && /^[ \t]+catheter\b/i.test(suffix))
+    /^[ \t]+(?:disease|syndrome|lymphoma|thyroiditis|palsy|catheter|line|drain|procedure|aphasia|score|mechanical[ \t]+valve)\b/i.test(
+      suffix,
+    ) ||
+    (/^(?:BROWN|BLACK|WHITE|GREEN)$/.test(normalized) &&
+      /^[ \t]+(?:sputum|tarry[ \t]+stool|blood[ \t]+cell|drainage)\b/i.test(suffix)) ||
+    (/^(?:WILL|MAY)$/.test(normalized) &&
+      /^[ \t]+(?:continue|remain|recheck|repeat|receive|need|hold|take|use)\b/i.test(suffix)) ||
+    (normalized === "ROSE" && /^[ \t]+to\b/i.test(suffix)) ||
+    (normalized === "GLEASON" && /^[ \t]+\d/i.test(suffix)) ||
+    (/^ST\.?$/.test(normalized) &&
+      /^[ \t]+Jude[ \t]+mechanical[ \t]+valve\b/i.test(suffix)) ||
+    (/^DR\.?[ \t]+PEPPER$/.test(normalized) &&
+      /\b(?:drink|drinks|drank|drinking|consume|consumes|consumed)\s*$/i.test(prefix))
   );
 }
 
@@ -448,15 +492,29 @@ export function mapNerResults(text, chunkStart, results, scoreThreshold = 0.35) 
   return mergeModelCandidates(text, candidates).filter((detection) => {
     const detectedText = text.slice(detection.start, detection.end);
     const suffix = text.slice(detection.end, Math.min(text.length, detection.end + 24));
+    const prefix = text.slice(Math.max(0, detection.start - 60), detection.start);
     const section = activeClinicalSection(text, detection.start);
-    if (isClinicalHeader(detectedText) || isClinicalNerExclusion(detectedText, suffix)) return false;
+    const normalized = detectedText.trim().toUpperCase().replace(/\s+/g, " ");
     if (
-      detection.entityType === "LOCATION" &&
+      isClinicalHeader(detectedText) ||
+      US_STATE_TERMS.has(normalized) ||
+      isClinicalNerExclusion(detectedText, prefix, suffix)
+    ) {
+      return false;
+    }
+    if (
       (isClinicalMedication(detectedText, section, suffix) ||
         isClinicalLabTerm(detectedText, section, suffix))
     ) {
       return false;
     }
+    if (
+      NATIONAL_CHAIN_TERMS.has(normalized) &&
+      GENERIC_CHAIN_CONTEXT.test(prefix)
+    ) {
+      return false;
+    }
+    if (MEDICATION_CONTEXT.test(prefix) && !GEOGRAPHIC_SUFFIX.test(suffix)) return false;
     if (detection.entityType !== "LOCATION") return true;
     if (detectedText.length > 48 && /\d/.test(detectedText) && /[a-z][A-Z]/.test(detectedText)) {
       // OCR/run-on prose can become one model token. Deterministic recognizers still remove the
@@ -465,14 +523,7 @@ export function mapNerResults(text, chunkStart, results, scoreThreshold = 0.35) 
       return false;
     }
 
-    const prefix = text.slice(Math.max(0, detection.start - 60), detection.start);
-    if (
-      NATIONAL_CHAIN_TERMS.has(detectedText.toUpperCase()) &&
-      GENERIC_CHAIN_CONTEXT.test(prefix)
-    ) {
-      return false;
-    }
-    return !(MEDICATION_CONTEXT.test(prefix) && !GEOGRAPHIC_SUFFIX.test(suffix));
+    return true;
   });
 }
 
