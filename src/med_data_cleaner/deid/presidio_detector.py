@@ -24,6 +24,9 @@ CLINICAL_HEADER_ALLOWLIST = frozenset(
         "CONTINUE",
         "CT",
         "DEPARTMENT",
+        "DERMATOLOGIST",
+        "DERMATOLOGY",
+        "DIFFERENTIAL",
         "DISEASE",
         "DISCHARGE",
         "DOB",
@@ -35,9 +38,14 @@ CLINICAL_HEADER_ALLOWLIST = frozenset(
         "EKG",
         "ER",
         "EMERGENCY",
+        "ENDOCRINOLOGIST",
+        "ENDOCRINOLOGY",
         "FOLLOW-UP",
         "FATHER",
+        "FACILITY",
         "GENERAL",
+        "GASTROENTEROLOGIST",
+        "GASTROENTEROLOGY",
         "GUARDIAN",
         "HIPAA",
         "HOME",
@@ -48,7 +56,12 @@ CLINICAL_HEADER_ALLOWLIST = frozenset(
         "INFECTIOUS",
         "INFUSION",
         "KT/V",
+        "LAB",
+        "LABS",
+        "LIST",
         "MEDICAL",
+        "MEDICATION",
+        "MEDICATIONS",
         "MEDICINE",
         "MOOD",
         "MOTHER",
@@ -60,8 +73,12 @@ CLINICAL_HEADER_ALLOWLIST = frozenset(
         "NEUROLOGY",
         "NOTE",
         "OBSTETRICIAN",
+        "OPHTHALMOLOGIST",
+        "OPHTHALMOLOGY",
         "ONCOLOGY",
         "ONCOLOGIST",
+        "ORTHOPEDIC",
+        "ORTHOPEDIST",
         "PATIENT",
         "PAT1ENT",
         "PATLENT",
@@ -74,16 +91,24 @@ CLINICAL_HEADER_ALLOWLIST = frozenset(
         "PMH",
         "PORTAL",
         "POTASSIUM",
+        "PLAN",
         "PTH",
         "PSH",
         "PRENATAL",
         "PROCEDURE",
         "PROGRESS",
+        "PULMONOLOGIST",
+        "PULMONOLOGY",
         "PSYCHIATRY",
         "PSYCHIATRIST",
         "RADIOLOGY",
         "RADIOLOGIST",
+        "RECHECK",
         "REPORT",
+        "RESULT",
+        "RESULTS",
+        "RHEUMATOLOGIST",
+        "RHEUMATOLOGY",
         "ROS",
         "SSN",
         "SUMMARY",
@@ -94,10 +119,67 @@ CLINICAL_HEADER_ALLOWLIST = frozenset(
         "STUDY",
         "POSTOPERATIVE",
         "URR",
+        "UROLOGIST",
+        "UROLOGY",
         "VISIT",
         "WIFE",
         "WORKSTATION",
     }
+)
+
+REPORTED_MEDICATION_TERMS = frozenset(
+    {"ERGOCALCIFEROL", "FARXIGA", "IMDUR", "LOKELMA", "TRESIBA", "TYLENOL"}
+)
+CLINICAL_NER_EXCLUSIONS = frozenset(
+    {"CREATININE", "METHICILLIN-SENSITIVE", "TOTAL", "TRIAMCINOLONE", "VITAMIN AND"}
+)
+CLINICAL_LAB_TERMS = frozenset(
+    {
+        "A1C",
+        "ALBUMIN",
+        "ALT",
+        "ANC",
+        "AST",
+        "BICARBONATE",
+        "BILIRUBIN",
+        "BUN",
+        "CALCIUM",
+        "CHLORIDE",
+        "CO2",
+        "CREATININE",
+        "CRP",
+        "EGFR",
+        "FERRITIN",
+        "GLUCOSE",
+        "HEMATOCRIT",
+        "HEMOGLOBIN",
+        "HGB",
+        "IRON",
+        "MAGNESIUM",
+        "PHOS",
+        "PHOSPHATE",
+        "PHOSPHORUS",
+        "PLATELETS",
+        "POTASSIUM",
+        "PTH",
+        "SODIUM",
+        "TSAT",
+        "WBC",
+    }
+)
+SECTION_MARKER_PATTERN = re.compile(
+    r"\b(MEDICATION(?:S|[ \t]+LIST)?|LAB(?:S|[ \t]+RESULTS?)?|"
+    r"PLAN|ASSESSMENT|DIAGNOSIS|HISTORY)\b",
+    re.IGNORECASE,
+)
+MEDICATION_DOSE_SUFFIX_PATTERN = re.compile(
+    r"^[ \t]*(?:(?:[:=|,\-]|is)[ \t]*)?(?:\d[\d,.]*[ \t]*)?"
+    r"(?:mg|mcg|g|kg|mL|L|units?|UT|IU)\b",
+    re.IGNORECASE,
+)
+LAB_VALUE_SUFFIX_PATTERN = re.compile(
+    r"^[ \t]*(?:(?:[:=|,\-]|is)[ \t]*)?[-+]?\d",
+    re.IGNORECASE,
 )
 
 
@@ -107,6 +189,50 @@ def _is_clinical_header(value: str) -> bool:
     ]
     words = [word for word in words if word]
     return 0 < len(words) <= 5 and all(word in CLINICAL_HEADER_ALLOWLIST for word in words)
+
+
+def _is_clinical_ner_exclusion(value: str, suffix: str) -> bool:
+    normalized = " ".join(value.strip().upper().split())
+    return (
+        normalized in CLINICAL_NER_EXCLUSIONS
+        or (
+            normalized == "CROHN"
+            and re.match(r"^[ \t]+(?:disease|colitis)\b", suffix, re.IGNORECASE) is not None
+        )
+        or (
+            normalized == "FOLEY"
+            and re.match(r"^[ \t]+catheter\b", suffix, re.IGNORECASE) is not None
+        )
+    )
+
+
+def _active_clinical_section(text: str, index: int) -> str:
+    prefix = text[max(0, index - 2000) : index]
+    markers = list(SECTION_MARKER_PATTERN.finditer(prefix))
+    marker = markers[-1].group(1).upper() if markers else ""
+    if marker.startswith("MEDICATION"):
+        return "MEDICATION"
+    if marker.startswith("LAB"):
+        return "LAB"
+    return "OTHER" if marker else ""
+
+
+def _is_clinical_medication(value: str, section: str, suffix: str) -> bool:
+    normalized = " ".join(value.strip().upper().split())
+    if normalized in REPORTED_MEDICATION_TERMS:
+        return True
+    if " " not in normalized and MEDICATION_DOSE_SUFFIX_PATTERN.match(suffix):
+        return True
+    return section == "MEDICATION" and bool(
+        re.fullmatch(r"[A-Z][A-Z0-9'\u2019/\-]{1,39}", normalized)
+    )
+
+
+def _is_clinical_lab_term(value: str, section: str, suffix: str) -> bool:
+    normalized = " ".join(value.strip().upper().split())
+    return normalized in CLINICAL_LAB_TERMS and (
+        section == "LAB" or LAB_VALUE_SUFFIX_PATTERN.match(suffix) is not None
+    )
 
 
 GEOGRAPHIC_SUFFIX_PATTERN = re.compile(
@@ -240,7 +366,16 @@ class PresidioDetector:
                     detected_text = text[segment_start:segment_end]
                     if not detected_text:
                         continue
-                if _is_clinical_header(detected_text):
+                suffix = text[segment_end : min(len(text), segment_end + 24)]
+                if _is_clinical_header(detected_text) or _is_clinical_ner_exclusion(
+                    detected_text, suffix
+                ):
+                    continue
+                section = _active_clinical_section(text, segment_start)
+                if result.entity_type in {"LOCATION", "ORGANIZATION"} and (
+                    _is_clinical_medication(detected_text, section, suffix)
+                    or _is_clinical_lab_term(detected_text, section, suffix)
+                ):
                     continue
                 if result.entity_type in {"LOCATION", "ORGANIZATION"}:
                     if (
@@ -253,7 +388,6 @@ class PresidioDetector:
                         # as a location would destroy the surrounding clinical narrative.
                         continue
                     prefix = text[max(0, segment_start - 60) : segment_start]
-                    suffix = text[segment_end : min(len(text), segment_end + 24)]
                     if (
                         detected_text.upper() in NATIONAL_CHAIN_TERMS
                         and GENERIC_CHAIN_CONTEXT_PATTERN.search(prefix)

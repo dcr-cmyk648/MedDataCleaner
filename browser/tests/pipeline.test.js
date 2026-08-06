@@ -44,6 +44,18 @@ test("matches the malformed synthetic regression output", async () => {
   assert.equal(result.export_allowed, true);
 });
 
+test("uses provider placeholders while preserving referral purpose", async () => {
+  const text =
+    "Patient: Jessa Wren. Refer to Dr. Maya Hart for fistulogram on 08/20/2026.";
+  const result = await deidentify({ text, nerDetector: readyEmptyNer });
+
+  assert.equal(
+    result.cleaned_text,
+    "Patient: [PERSON_1]. Refer to [PROVIDER_1] for fistulogram on [DATE_1].",
+  );
+  assert.equal(result.export_allowed, true);
+});
+
 test("uses local NER results for unlabelled names and locations", async () => {
   const text = "Jordan Example arrived from Testville.";
   const detector = {

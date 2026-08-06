@@ -187,6 +187,7 @@ test("preserves general-medical section headers when the model calls them locati
     "MOTHER",
     "EEG",
     "D0B",
+    "FACILITY",
     "H0ME",
     "CONTINUE",
   ];
@@ -212,7 +213,13 @@ test("preserves multiword general-medical headings", () => {
 });
 
 test("preserves clinical terms that the general model mislabels as people", () => {
-  const terms = ["Methicillin-sensitive", "creatinine", "total", "vitamin and"];
+  const terms = [
+    "Methicillin-sensitive",
+    "creatinine",
+    "total",
+    "triamcinolone",
+    "vitamin and",
+  ];
   const text = terms.join(" | ");
   const results = terms.map((word) => ({
     entity_group: "PER",
@@ -223,4 +230,133 @@ test("preserves clinical terms that the general model mislabels as people", () =
   }));
 
   assert.deepEqual(mapNerResults(text, 0, results), []);
+});
+
+test("preserves Crohn only in a clinical disease context", () => {
+  const clinicalText = "Ileocolonic Crohn disease is in remission.";
+  const clinicalStart = clinicalText.indexOf("Crohn");
+  assert.deepEqual(
+    mapNerResults(clinicalText, 0, [
+      {
+        entity_group: "PER",
+        score: 0.99,
+        word: "Crohn",
+        start: clinicalStart,
+        end: clinicalStart + "Crohn".length,
+      },
+    ]),
+    [],
+  );
+
+  const nameText = "Crohn presented for follow-up.";
+  const detections = mapNerResults(nameText, 0, [
+    {
+      entity_group: "PER",
+      score: 0.99,
+      word: "Crohn",
+      start: 0,
+      end: "Crohn".length,
+    },
+  ]);
+  assert.equal(nameText.slice(detections[0].start, detections[0].end), "Crohn");
+});
+
+test("preserves Foley only as a catheter term", () => {
+  const clinicalText = "Remove Foley catheter after ambulation.";
+  const clinicalStart = clinicalText.indexOf("Foley");
+  assert.deepEqual(
+    mapNerResults(clinicalText, 0, [
+      {
+        entity_group: "PER",
+        score: 0.99,
+        word: "Foley",
+        start: clinicalStart,
+        end: clinicalStart + "Foley".length,
+      },
+    ]),
+    [],
+  );
+
+  const nameText = "Foley called about the appointment.";
+  const nameDetection = mapNerResults(nameText, 0, [
+    {
+      entity_group: "PER",
+      score: 0.99,
+      word: "Foley",
+      start: 0,
+      end: "Foley".length,
+    },
+  ]);
+  assert.equal(nameText.slice(nameDetection[0].start, nameDetection[0].end), "Foley");
+});
+
+test("preserves cross-specialty headers and clinician roles", () => {
+  const terms = [
+    "DERMATOLOGY",
+    "Differential",
+    "ENDOCRINOLOGY",
+    "Gastroenterologist",
+    "OPHTHALMOLOGY",
+    "ORTHOPEDIC",
+    "PULMONOLOGY",
+    "RHEUMATOLOGY",
+    "UROLOGY",
+  ];
+  const text = terms.join(" | ");
+  const results = terms.map((word) => ({
+    entity_group: "LOC",
+    score: 0.99,
+    word,
+    start: text.indexOf(word),
+    end: text.indexOf(word) + word.length,
+  }));
+
+  assert.deepEqual(mapNerResults(text, 0, results), []);
+});
+
+test("preserves reported medications and lab terms only in clinical contexts", () => {
+  const clinicalText =
+    "MEDICATION LIST\nTylenol\nFarxiga\nErgocalciferol UT\nTresiba\nImdur\nLokelma\n" +
+    "LAB RESULTS\nHemoglobin | TSAT | Albumin | Calcium | Phosphorus\n" +
+    "Chloride | Sodium | Potassium | Bicarbonate";
+  const terms = [
+    "Tylenol",
+    "Farxiga",
+    "Ergocalciferol",
+    "UT",
+    "Tresiba",
+    "Imdur",
+    "Lokelma",
+    "Hemoglobin",
+    "TSAT",
+    "Albumin",
+    "Calcium",
+    "Phosphorus",
+    "Chloride",
+    "Sodium",
+    "Potassium",
+    "Bicarbonate",
+  ];
+  const results = terms.map((word) => ({
+    entity_group: "LOC",
+    score: 0.99,
+    word,
+    start: clinicalText.indexOf(word),
+    end: clinicalText.indexOf(word) + word.length,
+  }));
+
+  assert.deepEqual(mapNerResults(clinicalText, 0, results), []);
+
+  const geographicText = "The patient lives in Chloride, Arizona.";
+  const start = geographicText.indexOf("Chloride");
+  const geographic = mapNerResults(geographicText, 0, [
+    {
+      entity_group: "LOC",
+      score: 0.99,
+      word: "Chloride",
+      start,
+      end: start + "Chloride".length,
+    },
+  ]);
+  assert.equal(geographicText.slice(geographic[0].start, geographic[0].end), "Chloride");
 });

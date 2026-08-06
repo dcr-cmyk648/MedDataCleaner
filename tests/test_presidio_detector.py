@@ -4,7 +4,17 @@ import socket
 
 import pytest
 
-from med_data_cleaner.deid.presidio_detector import PresidioDetector
+from med_data_cleaner.deid.presidio_detector import (
+    PresidioDetector,
+    _is_clinical_header,
+    _is_clinical_ner_exclusion,
+)
+
+
+def test_clinical_context_guards_are_narrow() -> None:
+    assert _is_clinical_header("Facility")
+    assert _is_clinical_ner_exclusion("Foley", " catheter after ambulation")
+    assert not _is_clinical_ner_exclusion("Foley", " called about the appointment")
 
 
 def test_presidio_email_validation_uses_offline_suffix_snapshot(monkeypatch) -> None:

@@ -16,6 +16,7 @@ POLICY_ID = "hipaa-safe-harbor-text-v1"
 
 PLACEHOLDER_LABELS = {
     "PERSON": "PERSON",
+    "PROVIDER": "PROVIDER",
     "LOCATION": "LOCATION",
     "ADDRESS": "ADDRESS",
     "ZIP_CODE": "ZIP_CODE",
@@ -76,6 +77,7 @@ ENTITY_PRIORITY = {
     "FAX_NUMBER": 90,
     "ADDRESS": 85,
     "ZIP_CODE": 84,
+    "PROVIDER": 81,
     "PERSON": 80,
     "LOCATION": 79,
     "AGE_OVER_89": 75,

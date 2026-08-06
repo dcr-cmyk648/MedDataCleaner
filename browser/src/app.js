@@ -1,4 +1,10 @@
 import "./styles.css";
+import {
+  applySessionPreferences,
+  buildReviewedPreview,
+  canRememberClinicalKeep,
+  findingPreferenceKey,
+} from "./review.js";
 
 const CURRENT_VERSION = __MDC_VERSION__;
 const worker = new Worker(new URL("./worker.js", import.meta.url), { type: "module" });
@@ -16,10 +22,18 @@ const elements = {
   exportMessage: document.querySelector("#exportMessage"),
   findingCount: document.querySelector("#findingCount"),
   findingsList: document.querySelector("#findingsList"),
+  forgetChoicesButton: document.querySelector("#forgetChoicesButton"),
   highlightOutput: document.querySelector("#highlightOutput"),
   inputText: document.querySelector("#inputText"),
+  keepButton: document.querySelector("#keepButton"),
   manualCategory: document.querySelector("#manualCategory"),
+  nextFindingButton: document.querySelector("#nextFindingButton"),
   policyLabel: document.querySelector("#policyLabel"),
+  previousFindingButton: document.querySelector("#previousFindingButton"),
+  redactButton: document.querySelector("#redactButton"),
+  reviewNavigator: document.querySelector("#reviewNavigator"),
+  reviewPosition: document.querySelector("#reviewPosition"),
+  sessionChoices: document.querySelector("#sessionChoices"),
   reviewCheckbox: document.querySelector("#reviewCheckbox"),
   scanButton: document.querySelector("#scanButton"),
   updateButton: document.querySelector("#updateButton"),
@@ -38,6 +52,10 @@ const state = {
   updateRequired: false,
   nextRequestId: 1,
   requests: new Map(),
+  activeFindingIndex: 0,
+  reviewPreferences: new Map(),
+  reviewedFindingIds: new Set(),
+  preferenceHitCount: 0,
 };
 
 function createEmptyState(message) {
@@ -53,6 +71,8 @@ function formatEntityType(entityType) {
 
 function updateControls() {
   const hasText = Boolean(elements.inputText.value.trim());
+  const automaticCount =
+    state.analysis?.findings.filter((finding) => finding.source === "automatic").length ?? 0;
   elements.scanButton.disabled =
     state.processing || !state.workerInitialized || !hasText || state.updateRequired;
   elements.clearButton.disabled = state.processing;
@@ -66,6 +86,15 @@ function updateControls() {
     !state.updateRequired
   );
   elements.copyButton.disabled = elements.exportButton.disabled;
+  elements.previousFindingButton.disabled =
+    state.processing || automaticCount === 0 || state.activeFindingIndex === 0;
+  elements.nextFindingButton.disabled =
+    state.processing ||
+    automaticCount === 0 ||
+    state.activeFindingIndex >= automaticCount - 1;
+  elements.redactButton.disabled = state.processing || automaticCount === 0;
+  elements.keepButton.disabled = state.processing || automaticCount === 0;
+  elements.forgetChoicesButton.disabled = state.reviewPreferences.size === 0;
 }
 
 function setProcessing(processing) {
@@ -79,17 +108,107 @@ function resetReviewState() {
   state.sourceText = "";
   state.exclusions.clear();
   state.manualFindings = [];
+  state.activeFindingIndex = 0;
+  state.reviewedFindingIds.clear();
+  state.preferenceHitCount = 0;
   elements.cleanedOutput.textContent = "The cleaned text will appear here.";
   elements.cleanedOutput.classList.add("muted");
   elements.highlightOutput.textContent = "Findings will be highlighted here.";
   elements.highlightOutput.classList.add("muted");
   elements.findingCount.textContent = "Not scanned";
   elements.findingsList.replaceChildren(createEmptyState("No scan results yet."));
+  elements.reviewNavigator.classList.add("hidden");
   elements.reviewCheckbox.checked = false;
   elements.reviewCheckbox.disabled = true;
   elements.exportGate.className = "export-gate blocked";
   elements.exportMessage.textContent = "Run the local scan before exporting or copying.";
   updateControls();
+}
+
+function automaticFindings() {
+  return state.analysis?.findings.filter((finding) => finding.source === "automatic") ?? [];
+}
+
+function syncReviewedPreview() {
+  if (!state.analysis) return;
+  for (const finding of state.analysis.findings) {
+    if (finding.source === "automatic") {
+      finding.selected = !state.exclusions.has(finding.finding_id);
+    }
+  }
+  const preview = buildReviewedPreview(
+    elements.inputText.value,
+    state.analysis.findings,
+    state.exclusions,
+  );
+  state.analysis.cleaned_text = preview.cleanedText;
+  state.analysis.applied_count = preview.appliedCount;
+}
+
+function renderReviewNavigator() {
+  const findings = automaticFindings();
+  if (!findings.length) {
+    elements.reviewNavigator.classList.add("hidden");
+    return;
+  }
+  state.activeFindingIndex = Math.min(state.activeFindingIndex, findings.length - 1);
+  elements.reviewNavigator.classList.remove("hidden");
+  elements.reviewPosition.textContent =
+    `Finding ${state.activeFindingIndex + 1} of ${findings.length} · ` +
+    `${state.reviewedFindingIds.size} decided`;
+  const learned = state.preferenceHitCount
+    ? ` · ${state.preferenceHitCount} reused in this scan`
+    : "";
+  elements.sessionChoices.textContent =
+    `${state.reviewPreferences.size} model-location keep choice${
+      state.reviewPreferences.size === 1 ? "" : "s"
+    } remembered${learned}`;
+}
+
+function setActiveFinding(index, focus = false) {
+  const findings = automaticFindings();
+  if (!findings.length) return;
+  state.activeFindingIndex = Math.max(0, Math.min(index, findings.length - 1));
+  const cards = elements.findingsList.querySelectorAll(".finding-card.automatic");
+  for (const [cardIndex, card] of cards.entries()) {
+    card.classList.toggle("active", cardIndex === state.activeFindingIndex);
+  }
+  renderReviewNavigator();
+  updateControls();
+  if (focus) {
+    const activeCard = cards[state.activeFindingIndex];
+    activeCard?.focus();
+    activeCard?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+
+function setFindingDecision(finding, selected, advance = true) {
+  if (!finding || finding.source !== "automatic" || state.processing) return;
+  const key = findingPreferenceKey(elements.inputText.value, finding);
+  const remembered = !selected && canRememberClinicalKeep(finding);
+  if (remembered) state.reviewPreferences.set(key, false);
+  else state.reviewPreferences.delete(key);
+  for (const candidate of automaticFindings()) {
+    if (findingPreferenceKey(elements.inputText.value, candidate) !== key) continue;
+    if (selected) state.exclusions.delete(candidate.finding_id);
+    else state.exclusions.add(candidate.finding_id);
+    state.reviewedFindingIds.add(candidate.finding_id);
+  }
+  elements.reviewCheckbox.checked = false;
+  if (advance) {
+    state.activeFindingIndex = Math.min(
+      state.activeFindingIndex + 1,
+      Math.max(automaticFindings().length - 1, 0),
+    );
+  }
+  syncReviewedPreview();
+  renderAnalysis();
+  elements.documentStatus.textContent = selected
+    ? "Marked for de-identification. De-identification remains the default."
+    : remembered
+      ? "Marked as clinical text to keep. This exact model-only location term is remembered in this tab."
+      : "Marked as clinical text to keep for this note only. Identifier choices are never learned.";
+  requestAnimationFrame(() => setActiveFinding(state.activeFindingIndex, true));
 }
 
 function populateCategories(categories) {
@@ -130,20 +249,28 @@ function renderFindings(findings) {
   }
 
   const fragment = document.createDocumentFragment();
+  let automaticIndex = 0;
   for (const finding of findings) {
     const card = document.createElement("article");
     card.className = `finding-card${finding.selected ? "" : " excluded"}`;
 
     if (finding.source === "automatic") {
+      const findingIndex = automaticIndex;
+      automaticIndex += 1;
+      card.classList.add("automatic");
+      card.classList.toggle("active", findingIndex === state.activeFindingIndex);
+      card.classList.toggle("reviewed", state.reviewedFindingIds.has(finding.finding_id));
+      card.tabIndex = 0;
+      card.addEventListener("click", () => setActiveFinding(findingIndex));
+      card.addEventListener("focus", () => setActiveFinding(findingIndex));
       const checkbox = document.createElement("input");
       checkbox.type = "checkbox";
+      checkbox.tabIndex = -1;
       checkbox.checked = finding.selected;
       checkbox.setAttribute("aria-label", `Replace ${formatEntityType(finding.entity_type)} finding`);
-      checkbox.addEventListener("change", async () => {
-        if (checkbox.checked) state.exclusions.delete(finding.finding_id);
-        else state.exclusions.add(finding.finding_id);
-        elements.reviewCheckbox.checked = false;
-        await runAnalysis(false);
+      checkbox.addEventListener("change", () => {
+        state.activeFindingIndex = findingIndex;
+        setFindingDecision(finding, checkbox.checked, false);
       });
       card.append(checkbox);
     } else {
@@ -186,6 +313,7 @@ function renderFindings(findings) {
     fragment.append(card);
   }
   elements.findingsList.replaceChildren(fragment);
+  renderReviewNavigator();
 }
 
 function renderAnalysis() {
@@ -215,7 +343,9 @@ function renderAnalysis() {
     elements.reviewCheckbox.disabled = true;
   }
   elements.documentStatus.textContent = analysis.export_allowed
-    ? "Local scan complete; review is still required."
+    ? state.preferenceHitCount
+      ? `Local scan complete; ${state.preferenceHitCount} learned keep choices reused. Review is still required.`
+      : "Local scan complete; review is still required."
     : "Local scan complete; export remains blocked.";
   updateControls();
 }
@@ -247,6 +377,23 @@ async function runAnalysis(resetIfTextChanged = true) {
   setProcessing(true);
   try {
     state.analysis = await analyzeInWorker();
+    state.reviewedFindingIds.clear();
+    state.preferenceHitCount = applySessionPreferences(
+      text,
+      state.analysis.findings,
+      state.reviewPreferences,
+      state.exclusions,
+    );
+    for (const finding of state.analysis.findings) {
+      if (
+        finding.source === "automatic" &&
+        state.reviewPreferences.has(findingPreferenceKey(text, finding))
+      ) {
+        state.reviewedFindingIds.add(finding.finding_id);
+      }
+    }
+    state.activeFindingIndex = 0;
+    syncReviewedPreview();
     renderAnalysis();
   } catch (error) {
     elements.documentStatus.textContent = error.message;
@@ -430,6 +577,51 @@ elements.exportButton.addEventListener("click", exportText);
 elements.copyButton.addEventListener("click", copyText);
 elements.addSelectionButton.addEventListener("click", addManualSelection);
 elements.updateButton.addEventListener("click", () => updateApplication());
+elements.previousFindingButton.addEventListener("click", () =>
+  setActiveFinding(state.activeFindingIndex - 1, true),
+);
+elements.nextFindingButton.addEventListener("click", () =>
+  setActiveFinding(state.activeFindingIndex + 1, true),
+);
+elements.redactButton.addEventListener("click", () =>
+  setFindingDecision(automaticFindings()[state.activeFindingIndex], true),
+);
+elements.keepButton.addEventListener("click", () =>
+  setFindingDecision(automaticFindings()[state.activeFindingIndex], false),
+);
+elements.forgetChoicesButton.addEventListener("click", () => {
+  state.reviewPreferences.clear();
+  state.preferenceHitCount = 0;
+  renderReviewNavigator();
+  elements.documentStatus.textContent =
+    "Learned model-location keep choices forgotten. Current note decisions were not changed.";
+  updateControls();
+});
+
+document.addEventListener("keydown", (event) => {
+  const target = event.target;
+  if (
+    target instanceof HTMLInputElement ||
+    target instanceof HTMLTextAreaElement ||
+    target instanceof HTMLSelectElement
+  ) {
+    return;
+  }
+  if (!automaticFindings().length || state.processing || state.updateRequired) return;
+  if (event.key === "1") {
+    event.preventDefault();
+    setFindingDecision(automaticFindings()[state.activeFindingIndex], true);
+  } else if (event.key === "2") {
+    event.preventDefault();
+    setFindingDecision(automaticFindings()[state.activeFindingIndex], false);
+  } else if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    setActiveFinding(state.activeFindingIndex - 1, true);
+  } else if (event.key === "ArrowRight") {
+    event.preventDefault();
+    setActiveFinding(state.activeFindingIndex + 1, true);
+  }
+});
 
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") checkForUpdate();

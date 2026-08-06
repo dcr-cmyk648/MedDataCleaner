@@ -22,6 +22,20 @@ def test_replaces_findings_with_typed_tokens(regex_pipeline: DeidentificationPip
     assert result.residual_findings == ()
 
 
+def test_uses_provider_placeholders_while_preserving_referral_purpose(
+    regex_pipeline: DeidentificationPipeline,
+) -> None:
+    text = "Patient: Jessa Wren. Refer to Dr. Maya Hart for fistulogram on 08/20/2026."
+
+    result = regex_pipeline.deidentify(text)
+
+    assert (
+        result.cleaned_text
+        == "Patient: [PERSON_1]. Refer to [PROVIDER_1] for fistulogram on [DATE_1]."
+    )
+    assert result.export_allowed is True
+
+
 def test_repeated_values_receive_the_same_document_local_token(
     regex_pipeline: DeidentificationPipeline,
 ) -> None:

@@ -9,24 +9,35 @@ const RELATIONSHIP_LABEL =
   "(?:[Mm]other|[Ff]ather|[Ss]ister|[Bb]rother|[Ww]ife|[Hh]usband|[Ss]pouse|" +
   "[Ss]on|[Dd]aughter|[Gg]uardian|[Cc]aregiver)";
 const POSSESSIVE_LABEL = "(?:[Hh]is|[Hh]er|[Tt]heir)";
+const CLINICIAN_LABEL =
+  "(?:[Pp]rovider|[Pp]hysician|[Dd]octor|[Aa]ttending|[Rr]eferring[ \\t]+[Pp]rovider|" +
+  "[Ss]urgeon|[Oo]ncologist|[Pp]sychiatrist|[Pp]ediatrician|[Oo]bstetrician|" +
+  "[Rr]adiologist|[Pp]athologist|[Nn]eurologist|[Nn]ephrologist|[Cc]onsultant|" +
+  "[Ee]ndocrinologist|[Pp]ulmonologist|[Gg]astroenterologist|[Rr]heumatologist|" +
+  "[Dd]ermatologist|[Oo]phthalmologist|[Oo]rthopedic[ \\t]+[Ss]urgeon|" +
+  "[Oo]rthopedist|[Uu]rologist)";
 const NAME_HEADER =
   "(?:DOB|D0B|MRN|NPI|Address|H0ME|Phone|Fax|Email|Facility|Attending|Date|Encounter|Patient|" +
   "Pat1ent|PATlENT|Name|N4ME|" +
   "Provider|Physician|Doctor|Emergency|Member|Account|Visit|Claim|Order|Specimen|Device|" +
   "Caregiver|Guardian|Partner|Surgeon|Oncologist|Psychiatrist|Pediatrician|Obstetrician|" +
-  "Radiologist|Pathologist|Neurologist|Consultant|Labs?|Medications?|Assessment|Plan|" +
+  "Radiologist|Pathologist|Neurologist|Nephrologist|Consultant|Endocrinologist|Pulmonologist|" +
+  "Gastroenterologist|Rheumatologist|Dermatologist|Ophthalmologist|Orthopedic|Orthopedist|" +
+  "Urologist|" +
+  "Labs?|Medications?|Assessment|Plan|" +
   "History|Diagnosis|Mother|Father|Spouse|Callback|Home|Study|Procedure|Collection|" +
-  "Treatment|Presented)";
+  "Treatment|Presented|Refer|Referred|Referral)";
 const LABELED_NAME_SEPARATOR = `[ \\t]{1,3}(?![ \\t])(?!${NAME_HEADER}\\b)`;
 const LABELED_CORE_NAME_VALUE =
   `(?:${NAME_TOKEN},[ \\t]{0,3}${NAME_TOKEN}` +
   `(?:${LABELED_NAME_SEPARATOR}${NAME_TOKEN})?|` +
   `${NAME_TOKEN}(?:${LABELED_NAME_SEPARATOR}${NAME_TOKEN}){0,3})`;
 const CLINICIAN_PREFIX = "(?:(?:Dr|Doctor|Provider|Physician)\\.?[ \\t\\r\\n]+)?";
-const LABELED_NAME_VALUE =
-  `${CLINICIAN_PREFIX}${LABELED_CORE_NAME_VALUE}` +
+const LABELED_NAME_BODY =
+  `${LABELED_CORE_NAME_VALUE}` +
   `(?:[ \\t]*\\r?\\n[ \\t]*(?!${NAME_HEADER}\\b)${LABELED_CORE_NAME_VALUE}` +
   `(?![ \\t]+[a-z]))?`;
+const LABELED_NAME_VALUE = `${CLINICIAN_PREFIX}${LABELED_NAME_BODY}`;
 const FACILITY_TOKEN = "[A-Z][A-Za-z0-9'’/\\-<>%&!\\u00AD\\u200B]*";
 const FACILITY_VALUE = `${FACILITY_TOKEN}(?:${NAME_SEPARATOR}${FACILITY_TOKEN}){0,7}`;
 const FACILITY_DESIGNATOR =
@@ -94,21 +105,35 @@ export const PATTERNS = Object.freeze([
   pattern(
     "labeled-name",
     "PERSON",
-    `\\b(?:${PATIENT_LABEL}(?:[ \\t]+${NAME_LABEL})?|[Pp][Tt]|${NAME_LABEL}|[Pp]rovider|[Pp]hysician|[Dd]octor|` +
-      `[Aa]ttending|[Rr]eferring[ \\t]+[Pp]rovider|[Mm]other|[Ff]ather|[Ss]pouse|` +
-      `[Ee]mergency[ \\t]+[Cc]ontact|[Cc]aregiver|[Gg]uardian|[Pp]artner|[Ss]urgeon|` +
-      `[Oo]ncologist|[Pp]sychiatrist|[Pp]ediatrician|[Oo]bstetrician|[Rr]adiologist|` +
-      `[Pp]athologist|[Nn]eurologist|[Cc]onsultant)` +
+    `\\b(?:${PATIENT_LABEL}(?:[ \\t]+${NAME_LABEL})?|[Pp][Tt]|${NAME_LABEL}|` +
+      `[Mm]other|[Ff]ather|[Ss]pouse|[Ee]mergency[ \\t]+[Cc]ontact|[Cc]aregiver|` +
+      `[Gg]uardian|[Pp]artner)` +
       `${REQUIRED_LABEL_DELIMITER}(?<value>${LABELED_NAME_VALUE})`,
     0.96,
     "gm",
   ),
   pattern(
+    "labeled-provider-name",
+    "PROVIDER",
+    `\\b${CLINICIAN_LABEL}${REQUIRED_LABEL_DELIMITER}(?<value>${LABELED_NAME_VALUE})`,
+    0.97,
+    "gm",
+  ),
+  pattern(
     "titled-clinician-name",
-    "PERSON",
+    "PROVIDER",
     `\\b(?:Dr|Doctor|Provider|Physician)\\.?[ \\t\\r\\n]+` +
       `(?<value>${LABELED_CORE_NAME_VALUE})`,
     0.91,
+    "gm",
+  ),
+  pattern(
+    "referral-provider-name",
+    "PROVIDER",
+    `\\b(?:[Rr]efer(?:red)?[ \\t]+(?:to|with)|[Rr]eferral[ \\t]+to|` +
+      `[Cc]onsult(?:ed)?[ \\t]+(?:with|by))` +
+      `[ \\t]+(?<value>${LABELED_NAME_VALUE})`,
+    0.94,
     "gm",
   ),
   pattern(
@@ -365,6 +390,32 @@ export function isInsidePlaceholder(text, detection) {
   );
 }
 
+function isTabularClinicalNumberSequence(value) {
+  const cells = value.split(/[|\t]/).map((cell) => cell.trim());
+  return (
+    cells.length >= 3 &&
+    cells.every((cell) => /^[-+]?\d{1,4}(?:[.,]\d{1,4})?%?$/.test(cell)) &&
+    !/(?:19|20)\d{2}/.test(value)
+  );
+}
+
+function isInTabularClinicalNumberRow(text, start, end) {
+  const lineStart = text.lastIndexOf("\n", Math.max(0, start - 1)) + 1;
+  const nextNewline = text.indexOf("\n", end);
+  const lineEnd = nextNewline < 0 ? text.length : nextNewline;
+  return isTabularClinicalNumberSequence(text.slice(lineStart, lineEnd));
+}
+
+function hasPhoneContext(text, start) {
+  return /\b(?:phone|telephone|tel|callback|fax|facsimile|contact)\D{0,18}$/i.test(
+    text.slice(Math.max(0, start - 80), start),
+  );
+}
+
+function isRelativeTimePhraseMisreadAsAddress(value) {
+  return /^\d{1,3}[ \t]+(?:minutes?|hours?|days?|weeks?|months?|years?)\b/i.test(value);
+}
+
 export function detectWithRules(text) {
   const placeholders = placeholderSpans(text);
   const detections = [];
@@ -377,6 +428,27 @@ export function detectWithRules(text) {
       const start = match.index + Math.max(relativeStart, 0);
       const end = start + value.length;
       if (placeholders.some(([left, right]) => start >= left && end <= right)) continue;
+      if (
+        (isTabularClinicalNumberSequence(value) ||
+          isInTabularClinicalNumberRow(text, start, end)) &&
+        (spec.entityType === "DATE" ||
+          (spec.entityType === "PHONE_NUMBER" && !hasPhoneContext(text, start)))
+      ) {
+        continue;
+      }
+      if (spec.entityType === "ADDRESS" && isRelativeTimePhraseMisreadAsAddress(value)) {
+        continue;
+      }
+      if (
+        spec.name === "punctuation-corrupted-date" &&
+        /[A-Za-z]$/.test(text.slice(Math.max(0, start - 1), start)) &&
+        /^\d{1,2}[ \t\r\n]+\d{1,2}[./-]\d{2}\b/.test(value) &&
+        !/(?:DOB|D0B|DATE|DATED|ADMITTED|DISCHARGED|HOSPITALIZED|SEEN)$/i.test(
+          text.slice(Math.max(0, start - 16), start),
+        )
+      ) {
+        continue;
+      }
       detections.push({
         start,
         end,

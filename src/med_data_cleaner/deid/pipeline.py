@@ -26,7 +26,10 @@ from med_data_cleaner.deid.regex_detector import PLACEHOLDER_PATTERN, RegexDetec
 MAX_TEXT_LENGTH = 500_000
 CONTEXTUAL_TYPE_RECOGNIZERS = {
     "LOCATION": frozenset({"concatenated-facility-name", "labeled-facility-name"}),
-    "PERSON": frozenset({"labeled-name", "relationship-name", "titled-clinician-name"}),
+    "PERSON": frozenset({"labeled-name", "relationship-name"}),
+    "PROVIDER": frozenset(
+        {"labeled-provider-name", "referral-provider-name", "titled-clinician-name"}
+    ),
     "UNIQUE_ID": frozenset({"other-contextual-identifier", "provider-identifier"}),
 }
 

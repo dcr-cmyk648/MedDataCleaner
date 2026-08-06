@@ -14,7 +14,12 @@ const CONTEXTUAL_TYPE_RECOGNIZERS = Object.freeze({
     "contextual-facility-name",
     "labeled-facility-name",
   ]),
-  PERSON: new Set(["labeled-name", "relationship-name", "titled-clinician-name"]),
+  PERSON: new Set(["labeled-name", "relationship-name"]),
+  PROVIDER: new Set([
+    "labeled-provider-name",
+    "referral-provider-name",
+    "titled-clinician-name",
+  ]),
   UNIQUE_ID: new Set(["other-contextual-identifier", "provider-identifier"]),
 });
 

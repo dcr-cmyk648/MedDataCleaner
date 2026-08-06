@@ -22,14 +22,23 @@ MONTH = (
 )
 NAME_TOKEN = r"(?-i:(?:[A-Z014][A-Za-z014'\u2019/\-<>%&!\u00ad\u200b]+|[A-Z]\.))"
 NAME_SEPARATOR = r"[ \t]{1,3}(?![ \t])"
+CLINICIAN_LABEL = (
+    r"provider|physician|doctor|attending|referring\s+provider|surgeon|oncologist|"
+    r"psychiatrist|pediatrician|obstetrician|radiologist|pathologist|neurologist|"
+    r"nephrologist|consultant|endocrinologist|pulmonologist|gastroenterologist|"
+    r"rheumatologist|dermatologist|ophthalmologist|orthopedic\s+surgeon|orthopedist|urologist"
+)
 NAME_HEADER = (
     r"DOB|D0B|MRN|NPI|Address|H0ME|Phone|Fax|Email|Facility|Attending|Date|Encounter|Patient|"
     r"Pat1ent|PATlENT|Name|N4ME|"
     r"Provider|Physician|Doctor|Emergency|Member|Account|Visit|Claim|Order|Specimen|Device|"
     r"Caregiver|Guardian|Partner|Surgeon|Oncologist|Psychiatrist|Pediatrician|Obstetrician|"
-    r"Radiologist|Pathologist|Neurologist|Consultant|Labs?|Medications?|Assessment|Plan|"
+    r"Radiologist|Pathologist|Neurologist|Nephrologist|Consultant|Endocrinologist|Pulmonologist|"
+    r"Gastroenterologist|Rheumatologist|Dermatologist|Ophthalmologist|Orthopedic|Orthopedist|"
+    r"Urologist|"
+    r"Labs?|Medications?|Assessment|Plan|"
     r"History|Diagnosis|Mother|Father|Spouse|Callback|Home|Study|Procedure|Collection|Treatment"
-    r"|Presented"
+    r"|Presented|Refer|Referred|Referral"
 )
 LABELED_NAME_SEPARATOR = rf"[ \t]{{1,3}}(?![ \t])(?!(?:{NAME_HEADER})\b)"
 LABELED_CORE_NAME_VALUE = (
@@ -38,11 +47,12 @@ LABELED_CORE_NAME_VALUE = (
     rf"{NAME_TOKEN}(?:{LABELED_NAME_SEPARATOR}{NAME_TOKEN}){{0,3}})"
 )
 CLINICIAN_PREFIX = r"(?:(?:Dr|Doctor|Provider|Physician)\.?[ \t\r\n]+)?"
-LABELED_NAME_VALUE = (
-    rf"{CLINICIAN_PREFIX}{LABELED_CORE_NAME_VALUE}"
+LABELED_NAME_BODY = (
+    rf"{LABELED_CORE_NAME_VALUE}"
     rf"(?:[ \t]*\r?\n[ \t]*(?!(?:{NAME_HEADER})\b){LABELED_CORE_NAME_VALUE}"
     rf"(?![ \t]+[a-z]))?"
 )
+LABELED_NAME_VALUE = rf"{CLINICIAN_PREFIX}{LABELED_NAME_BODY}"
 FACILITY_TOKEN = r"(?-i:[A-Z][A-Za-z0-9'\u2019/\-<>%&!\u00ad\u200b]*)"
 FACILITY_VALUE = rf"{FACILITY_TOKEN}(?:{NAME_SEPARATOR}{FACILITY_TOKEN}){{0,7}}"
 FACILITY_DESIGNATOR = (
@@ -120,22 +130,39 @@ PATTERNS: tuple[PatternSpec, ...] = (
         "labeled-name",
         "PERSON",
         _compile(
-            rf"\b(?:pat[iIl1]ent(?:\s+n[a4]me)?|pt|n[a4]me|provider|physician|doctor|attending|"
-            rf"referring\s+provider|mother|father|spouse|emergency\s+contact|caregiver|"
-            rf"guardian|partner|surgeon|oncologist|psychiatrist|pediatrician|obstetrician|"
-            rf"radiologist|pathologist|neurologist|consultant)"
+            rf"\b(?:pat[iIl1]ent(?:\s+n[a4]me)?|pt|n[a4]me|mother|father|spouse|"
+            rf"emergency\s+contact|caregiver|guardian|partner)"
             rf"{REQUIRED_LABEL_DELIMITER}(?P<value>{LABELED_NAME_VALUE})"
         ),
         0.96,
     ),
     PatternSpec(
+        "labeled-provider-name",
+        "PROVIDER",
+        _compile(
+            rf"\b(?:{CLINICIAN_LABEL})"
+            rf"{REQUIRED_LABEL_DELIMITER}(?P<value>{LABELED_NAME_VALUE})"
+        ),
+        0.97,
+    ),
+    PatternSpec(
         "titled-clinician-name",
-        "PERSON",
+        "PROVIDER",
         _compile(
             rf"\b(?:Dr|Doctor|Provider|Physician)\.?\s+"
             rf"(?P<value>{LABELED_CORE_NAME_VALUE})"
         ),
         0.91,
+    ),
+    PatternSpec(
+        "referral-provider-name",
+        "PROVIDER",
+        _compile(
+            rf"\b(?:refer(?:red)?\s+(?:to|with)|referral\s+to|"
+            rf"consult(?:ed)?\s+(?:with|by))\s+"
+            rf"(?P<value>{LABELED_NAME_VALUE})"
+        ),
+        0.94,
     ),
     PatternSpec(
         "relationship-name",
@@ -473,6 +500,45 @@ class RegexDetector:
                     start, end = match.span()
 
                 if any(start >= left and end <= right for left, right in placeholders):
+                    continue
+                line_start = text.rfind("\n", 0, start) + 1
+                line_end = text.find("\n", end)
+                if line_end < 0:
+                    line_end = len(text)
+                tabular_candidates = (text[start:end], text[line_start:line_end])
+                tabular_clinical_numbers = any(
+                    len(cells := [cell.strip() for cell in re.split(r"[|\t]", candidate)]) >= 3
+                    and all(re.fullmatch(r"[-+]?\d{1,4}(?:[.,]\d{1,4})?%?", cell) for cell in cells)
+                    and re.search(r"(?:19|20)\d{2}", candidate) is None
+                    for candidate in tabular_candidates
+                )
+                phone_context = re.search(
+                    r"\b(?:phone|telephone|tel|callback|fax|facsimile|contact)\D{0,18}$",
+                    text[max(0, start - 80) : start],
+                    re.IGNORECASE,
+                )
+                if tabular_clinical_numbers and (
+                    spec.entity_type == "DATE"
+                    or (spec.entity_type == "PHONE_NUMBER" and phone_context is None)
+                ):
+                    continue
+                if spec.entity_type == "ADDRESS" and re.match(
+                    r"\d{1,3}[ \t]+(?:minutes?|hours?|days?|weeks?|months?|years?)\b",
+                    text[start:end],
+                    re.IGNORECASE,
+                ):
+                    continue
+                if (
+                    spec.name == "punctuation-corrupted-date"
+                    and start > 0
+                    and text[start - 1].isalpha()
+                    and re.match(r"\d{1,2}[ \t\r\n]+\d{1,2}[./-]\d{2}\b", text[start:end])
+                    and not re.search(
+                        r"(?:DOB|D0B|DATE|DATED|ADMITTED|DISCHARGED|HOSPITALIZED|SEEN)$",
+                        text[max(0, start - 16) : start],
+                        re.IGNORECASE,
+                    )
+                ):
                     continue
 
                 detections.append(

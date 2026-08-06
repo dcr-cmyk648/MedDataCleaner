@@ -27,6 +27,20 @@ try {
   page.on("request", (request) => {
     requests.push({ url: request.url(), method: request.method(), postData: request.postData() });
   });
+  await page.addInitScript(() => {
+    const NativeWorker = window.Worker;
+    window.__mdcLastAnalysis = null;
+    window.Worker = function InspectableWorker(...arguments_) {
+      const worker = new NativeWorker(...arguments_);
+      worker.addEventListener("message", (event) => {
+        if (event.data?.type === "analysis-result") {
+          window.__mdcLastAnalysis = event.data.result;
+        }
+      });
+      return worker;
+    };
+    window.Worker.prototype = NativeWorker.prototype;
+  });
 
   await page.goto(applicationUrl, { waitUntil: "domcontentloaded" });
   await page.locator("#engineBadge").getByText("Browser-local engine ready").waitFor({
@@ -61,6 +75,13 @@ try {
       }
     }
     if (await page.locator("#reviewCheckbox").isDisabled()) {
+      const residualDetails = await page.evaluate(() => {
+        const analysis = window.__mdcLastAnalysis;
+        return (analysis?.residual_findings ?? []).map((finding) => ({
+          ...finding,
+          value: analysis.cleaned_text.slice(finding.start, finding.end),
+        }));
+      });
       await page.locator("#inputText").fill(cleaned);
       await page.waitForFunction(() => !document.querySelector("#scanButton").disabled);
       await page.locator("#scanButton").click();
@@ -72,6 +93,7 @@ try {
       const residualPass = await page.locator("#cleanedOutput").textContent();
       failures.push(
         `${fixture.id}: export remained blocked after a complete local scan\n` +
+          `residual findings: ${JSON.stringify(residualDetails)}\n` +
           `first pass: ${cleaned}\nsecond pass: ${residualPass}`,
       );
     }

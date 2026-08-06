@@ -64,6 +64,20 @@ test("clipboard output is a review-gated action below file export", async () => 
   assert.match(app, /useVerifiedOutput[\s\S]*navigator\.clipboard\.writeText\(cleanedText\)/);
 });
 
+test("fast review is keyboard-accessible and learning remains memory-only", async () => {
+  const html = await source("browser/index.html");
+  const app = await source("browser/src/app.js");
+  const review = await source("browser/src/review.js");
+
+  assert.match(html, /aria-keyshortcuts="1"[\s\S]*aria-keyshortcuts="2"/);
+  assert.match(html, /Forget learned clinical terms/);
+  assert.match(app, /event\.key === "1"[\s\S]*event\.key === "2"/);
+  assert.match(app, /card\.addEventListener\("focus"[\s\S]*checkbox\.tabIndex = -1/);
+  assert.match(review, /finding\.entity_type === "LOCATION"/);
+  assert.match(review, /browser-onnx:distilbert-ner/);
+  assert.doesNotMatch(`${app}\n${review}`, /localStorage|sessionStorage|indexedDB/);
+});
+
 test("model downloads are revision-pinned and integrity-checked", async () => {
   const manifest = JSON.parse(await source("browser/model-manifest.json"));
 

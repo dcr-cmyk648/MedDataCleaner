@@ -25,7 +25,7 @@
     "text": "Caller: patient Kellan Rook. Wife Tessa Rook joined the call. Pt=ROOK,KELLAN|MRN CR-20077|unit=North Star Dialysis Annex|nephrologist Dr. Oren Lark|Patient says the pharmacy at 404 Placeholder Parkway, Lansing MI, did not receive the prescription. The laboratory accession number is LAB-8810-RK. Follow-up with Kellan Rook at kellan.rook@example.test.",
     "must_remove": ["Kellan Rook", "Tessa Rook", "ROOK,KELLAN", "CR-20077", "North Star Dialysis Annex", "Oren Lark", "404 Placeholder Parkway", "LAB-8810-RK", "kellan.rook@example.test"],
     "must_preserve": ["joined the call", "did not receive the prescription", "laboratory accession number is"],
-    "placeholder_types": ["PERSON", "MEDICAL_RECORD_NUMBER", "LOCATION", "ADDRESS", "UNIQUE_ID", "EMAIL_ADDRESS"]
+    "placeholder_types": ["PERSON", "PROVIDER", "MEDICAL_RECORD_NUMBER", "LOCATION", "ADDRESS", "UNIQUE_ID", "EMAIL_ADDRESS"]
   },
   {
     "id": "medications-and-chain-negative-control",
@@ -102,7 +102,7 @@
     "text": "The patient was seen by Doctor Cato Birch on July 8th, 2026. His mother Elara Birch and caregiver Soren Moss attended. Hemoglobin 10.4 g/dL and ferritin 488 ng/mL.",
     "must_remove": ["Cato Birch", "July 8th, 2026", "Elara Birch", "Soren Moss"],
     "must_preserve": ["Hemoglobin 10.4 g/dL", "ferritin 488 ng/mL"],
-    "placeholder_types": ["PERSON", "DATE"]
+    "placeholder_types": ["PERSON", "PROVIDER", "DATE"]
   },
   {
     "id": "corrupted-postal-and-address",
@@ -130,14 +130,14 @@
     "text": "MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE\nPatient Name: Maribel\nQuince\nDOB: 02\n/14/1978    MRN: TEST-HD-10482    Encounter ID: ENC-770041\nAddress: 104 Fictional Harbor Way, Grand Rapids, MI 4950/3\nPhone: 202-555-0104    Email: maribel.quince@example.test\nEmergency contact: Tomas Quince, husband, 202-555-0105\nFacility: Blue Heron Dialysis Pavilion\nAttending: Dr. Rowan Vale    NPI: 00000000<>00\nDate of service: July 8, 20>26\nLabs: hemoglobin 10.4 g/dL, ferritin 488 ng/mL, TSAT 27%, potassium 4.9 mmol/L, phosphorus 5.6 mg/dL, PTH 438 pg/mL. Medications: epoetin alfa 4,000 units, iron sucrose 50 mg, sevelamer carbonate 800 mg, calcitriol 0.5 mcg, carvedilol 12.5 mg.",
     "must_remove": ["Maribel", "Quince", "02\n/14/1978", "TEST-HD-10482", "ENC-770041", "104 Fictional Harbor Way", "4950/3", "202-555-0104", "maribel.quince@example.test", "Tomas", "202-555-0105", "Blue Heron", "Rowan", "Vale", "00000000<>00", "July 8, 20>26"],
     "must_preserve": ["MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE", "hemoglobin 10.4 g/dL", "ferritin 488 ng/mL", "TSAT 27%", "potassium 4.9 mmol/L", "phosphorus 5.6 mg/dL", "PTH 438 pg/mL", "epoetin alfa 4,000 units", "iron sucrose 50 mg", "sevelamer carbonate 800 mg", "calcitriol 0.5 mcg", "carvedilol 12.5 mg"],
-    "placeholder_types": ["PERSON", "DATE", "MEDICAL_RECORD_NUMBER", "UNIQUE_ID", "ADDRESS", "ZIP_CODE", "PHONE_NUMBER", "EMAIL_ADDRESS", "LOCATION"]
+    "placeholder_types": ["PERSON", "PROVIDER", "DATE", "MEDICAL_RECORD_NUMBER", "UNIQUE_ID", "ADDRESS", "ZIP_CODE", "PHONE_NUMBER", "EMAIL_ADDRESS", "LOCATION"]
   },
   {
     "id": "reported-segmentation-noise-in-identifiers",
     "text": "MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE\nPatient Name: Maribel\nQuince\nDOB: 02/14/1978    MRN: TES!\nT-HD-10482    Encounter ID: ENC-770041\nAddress: 104 Fictional Harbor Way, Grand Rapids, MI 49503\nPhone: 202-555-0104    Email: maribel.quince@example.test\nEmergency contact: Tomas Quince, husband, 202-5>55-0105\nFacility: Blue Heron Dialysis Pavilion\nAttending: Dr. Rowan Vale    NPI: 000%00000<>00\nDate of service: July 8, 202>6\nLabs: hemoglobin 10.4 g/dL, ferritin 488 ng/mL, TSAT 27%, potassium 4.9 mmol/L, phosphorus 5.6 mg/dL, PTH 438 pg/mL. Medications: epoetin alfa 4,000 units, iron sucrose 50 mg, sevelamer carbonate 800 mg, calcitriol 0.5 mcg, carvedilol 12.5 mg.",
     "must_remove": ["Maribel", "Quince", "02/14/1978", "TES!\nT-HD-10482", "10482", "ENC-770041", "104 Fictional Harbor Way", "49503", "202-555-0104", "maribel.quince@example.test", "Tomas", "202-5>55-0105", "0105", "Blue Heron", "Rowan", "Vale", "000%00000<>00", "00000", "July 8, 202>6", "202>6"],
     "must_preserve": ["MONTHLY HEMODIALYSIS COMPREHENSIVE NOTE", "hemoglobin 10.4 g/dL", "ferritin 488 ng/mL", "TSAT 27%", "potassium 4.9 mmol/L", "phosphorus 5.6 mg/dL", "PTH 438 pg/mL", "epoetin alfa 4,000 units", "iron sucrose 50 mg", "sevelamer carbonate 800 mg", "calcitriol 0.5 mcg", "carvedilol 12.5 mg"],
-    "placeholder_types": ["PERSON", "DATE", "MEDICAL_RECORD_NUMBER", "UNIQUE_ID", "ADDRESS", "PHONE_NUMBER", "EMAIL_ADDRESS", "LOCATION"]
+    "placeholder_types": ["PERSON", "PROVIDER", "DATE", "MEDICAL_RECORD_NUMBER", "UNIQUE_ID", "ADDRESS", "PHONE_NUMBER", "EMAIL_ADDRESS", "LOCATION"]
   },
   {
     "id": "corrupted-year-segmentation-matrix",
@@ -145,5 +145,12 @@
     "must_remove": ["20%26", "20\n26", "202&6", "202>6", "20 26", "202​6", "202­6"],
     "must_preserve": ["Synthetic corrupted year matrix", "Potassium 4.9 mmol/L", "phosphorus 5.6 mg/dL", "treatment time 210 minutes"],
     "placeholder_types": ["DATE"]
+  },
+  {
+    "id": "reported-medication-lab-plan-review",
+    "text": "GENERAL MEDICINE FOLLOW-UP\nPatient Name: Jessa Wren\nDOB: 02/14/1978    MRN: TEST-GM-10482\nMEDICATION LIST\nTylenol\nFarxiga\nErgocalciferol UT\nTresiba\nImdur\nLokelma\nLAB RESULTS\nHemoglobin | TSAT | Albumin | Calcium | Phosphorus\n10.2 | 21 | 3.7 | 8.7 | 5.4\nChloride | Sodium | Potassium | Bicarbonate\n101 | 137 | 4.8 | 23\nPLAN\nRecheck labs in 2 weeks and again next month. Refer to Dr. Maya Hart for fistulogram on 08/20/2026.",
+    "must_remove": ["Jessa Wren", "02/14/1978", "TEST-GM-10482", "Maya Hart", "08/20/2026"],
+    "must_preserve": ["MEDICATION LIST", "Tylenol", "Farxiga", "Ergocalciferol UT", "Tresiba", "Imdur", "Lokelma", "LAB RESULTS", "Hemoglobin | TSAT | Albumin | Calcium | Phosphorus", "10.2 | 21 | 3.7 | 8.7 | 5.4", "Chloride | Sodium | Potassium | Bicarbonate", "101 | 137 | 4.8 | 23", "Recheck labs in 2 weeks and again next month", "Refer to", "for fistulogram"],
+    "placeholder_types": ["PERSON", "PROVIDER", "DATE", "MEDICAL_RECORD_NUMBER"]
   }
 ]

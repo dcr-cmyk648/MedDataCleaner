@@ -391,6 +391,53 @@ mark.excluded {
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
 }
 
+.review-navigator {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 0.65rem;
+  display: grid;
+  gap: 0.7rem;
+  margin-bottom: 0.8rem;
+  padding: 0.8rem;
+}
+
+.review-navigator.hidden {
+  display: none;
+}
+
+.review-progress {
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1rem;
+}
+
+.review-progress .muted,
+.review-help {
+  font-size: 0.76rem;
+}
+
+.review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.review-help {
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+kbd {
+  background: var(--surface-raised);
+  border: 1px solid var(--line);
+  border-radius: 0.25rem;
+  color: var(--ink);
+  font: 700 0.72rem ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  padding: 0.08rem 0.3rem;
+}
+
 .finding-card {
   align-items: flex-start;
   background: #151f1b;
@@ -400,6 +447,16 @@ mark.excluded {
   gap: 0.65rem;
   grid-template-columns: auto 1fr auto;
   padding: 0.7rem;
+}
+
+.finding-card.active {
+  border-color: var(--green);
+  box-shadow: 0 0 0 2px rgba(101, 214, 168, 0.16);
+}
+
+.finding-card:focus-visible {
+  outline: 3px solid rgba(101, 214, 168, 0.42);
+  outline-offset: 2px;
 }
 
 .finding-card.excluded {

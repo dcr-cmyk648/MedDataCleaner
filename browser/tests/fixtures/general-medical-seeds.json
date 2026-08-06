@@ -11,7 +11,7 @@
       { "token": "{{phone}}", "value": "202-555-0101", "entity_type": "PHONE_NUMBER" },
       { "token": "{{email}}", "value": "amara.venn@example.test", "entity_type": "EMAIL_ADDRESS" },
       { "token": "{{facility}}", "value": "Maple Lantern Hospital", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Ivo March", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Ivo March", "entity_type": "PROVIDER" },
       { "token": "{{npi}}", "value": "0000000000", "entity_type": "UNIQUE_ID", "kind": "npi" },
       { "token": "{{date}}", "value": "July 18, 2026", "entity_type": "DATE" }
     ],
@@ -30,7 +30,7 @@
       { "token": "{{address}}", "value": "208 Fictional Cedar Road, Toledo, OH 43604", "entity_type": "ADDRESS" },
       { "token": "{{contact}}", "value": "Rhea Frost", "entity_type": "PERSON" },
       { "token": "{{phone}}", "value": "202-555-0102", "entity_type": "PHONE_NUMBER" },
-      { "token": "{{clinician}}", "value": "Dr. Aria Stone", "entity_type": "PERSON" }
+      { "token": "{{clinician}}", "value": "Dr. Aria Stone", "entity_type": "PROVIDER" }
     ],
     "must_preserve": ["Presented with substernal chest pain", "motor-vehicle collision", "ECG", "sinus tachycardia", "troponin was 7 ng/L", "CT chest", "acetaminophen"]
   },
@@ -44,7 +44,7 @@
       { "token": "{{mrn}}", "value": "CARD-11904", "entity_type": "MEDICAL_RECORD_NUMBER" },
       { "token": "{{encounter}}", "value": "ENC-620041", "entity_type": "UNIQUE_ID" },
       { "token": "{{facility}}", "value": "Amber Kite Heart Clinic", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Talia Reed", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Talia Reed", "entity_type": "PROVIDER" },
       { "token": "{{date}}", "value": "05/14/2026", "entity_type": "DATE" },
       { "token": "{{phone}}", "value": "202-555-0103", "entity_type": "PHONE_NUMBER" },
       { "token": "{{device}}", "value": "PM-TEST-8802", "entity_type": "DEVICE_ID" }
@@ -61,7 +61,7 @@
       { "token": "{{mrn}}", "value": "ONC-44072", "entity_type": "MEDICAL_RECORD_NUMBER" },
       { "token": "{{visit}}", "value": "VISIT-99104", "entity_type": "UNIQUE_ID" },
       { "token": "{{facility}}", "value": "Blue Comet Cancer Center", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Nia Rowan", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Nia Rowan", "entity_type": "PROVIDER" },
       { "token": "{{caregiver}}", "value": "Mara Quill", "entity_type": "PERSON" },
       { "token": "{{phone}}", "value": "202-555-0104", "entity_type": "PHONE_NUMBER" },
       { "token": "{{date}}", "value": "04/30/2026", "entity_type": "DATE" },
@@ -81,7 +81,7 @@
       { "token": "{{mother}}", "value": "Elara Lark", "entity_type": "PERSON" },
       { "token": "{{phone}}", "value": "202-555-0105", "entity_type": "PHONE_NUMBER" },
       { "token": "{{facility}}", "value": "Silver Lantern Behavioral Clinic", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Oren Birch", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Oren Birch", "entity_type": "PROVIDER" },
       { "token": "{{date}}", "value": "June 2, 2026", "entity_type": "DATE" }
     ],
     "must_preserve": ["schizoaffective disorder", "bipolar type", "stimulant use disorder", "Denies suicidal or homicidal ideation", "command hallucinations", "olanzapine 10 mg", "divalproex ER 1,000 mg", "Valproate level 68 mcg/mL", "Safety plan"]
@@ -96,7 +96,7 @@
       { "token": "{{mrn}}", "value": "SURG-33190", "entity_type": "MEDICAL_RECORD_NUMBER" },
       { "token": "{{date}}", "value": "2026-05-19", "entity_type": "DATE" },
       { "token": "{{facility}}", "value": "North Star Surgical Hospital", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Cato Moss", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Cato Moss", "entity_type": "PROVIDER" },
       { "token": "{{spouse}}", "value": "Jalen Birch", "entity_type": "PERSON" },
       { "token": "{{phone}}", "value": "202-555-0106", "entity_type": "PHONE_NUMBER" },
       { "token": "{{device}}", "value": "MESH-TEST-7781", "entity_type": "DEVICE_ID" }
@@ -114,7 +114,7 @@
       { "token": "{{guardian}}", "value": "Suri Moss", "entity_type": "PERSON" },
       { "token": "{{address}}", "value": "16 Fictional Meadow Court, Phoenix, AZ 85003", "entity_type": "ADDRESS" },
       { "token": "{{phone}}", "value": "202-555-0107", "entity_type": "PHONE_NUMBER" },
-      { "token": "{{clinician}}", "value": "Dr. Mira Snow", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Mira Snow", "entity_type": "PROVIDER" },
       { "token": "{{date}}", "value": "07/07/2026", "entity_type": "DATE" }
     ],
     "must_preserve": ["7 years old", "weighs 24.6 kg", "Mild persistent asthma", "Lungs are clear", "fluticasone 44 mcg", "albuterol two puffs", "Spacer technique"]
@@ -129,7 +129,7 @@
       { "token": "{{mrn}}", "value": "OB-12094", "entity_type": "MEDICAL_RECORD_NUMBER" },
       { "token": "{{date}}", "value": "08/17/2026", "entity_type": "DATE" },
       { "token": "{{facility}}", "value": "Cedar Moon Women's Clinic", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Rina Vale", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Rina Vale", "entity_type": "PROVIDER" },
       { "token": "{{partner}}", "value": "Omar Pike", "entity_type": "PERSON" },
       { "token": "{{phone}}", "value": "202-555-0108", "entity_type": "PHONE_NUMBER" }
     ],
@@ -146,7 +146,7 @@
       { "token": "{{accession}}", "value": "ACC-2026-77104", "entity_type": "UNIQUE_ID" },
       { "token": "{{order}}", "value": "ORD-55821", "entity_type": "UNIQUE_ID" },
       { "token": "{{facility}}", "value": "Copper Pine Imaging Center", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Eira Lark", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Eira Lark", "entity_type": "PROVIDER" },
       { "token": "{{date}}", "value": "March 6, 2026", "entity_type": "DATE" }
     ],
     "must_preserve": ["CT abdomen and pelvis with IV contrast", "Liver, spleen, pancreas, and adrenal glands", "4 mm nonobstructing left renal calculus", "No hydronephrosis", "bowel obstruction", "nonobstructing left nephrolithiasis"]
@@ -162,7 +162,7 @@
       { "token": "{{specimen}}", "value": "SPC-5511-K", "entity_type": "UNIQUE_ID" },
       { "token": "{{accession}}", "value": "LAB-8810-RK", "entity_type": "UNIQUE_ID" },
       { "token": "{{facility}}", "value": "Juniper Test Medical Center", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Imani Reed", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Imani Reed", "entity_type": "PROVIDER" },
       { "token": "{{date}}", "value": "09/03/2026", "entity_type": "DATE" }
     ],
     "must_preserve": ["sigmoid colon polyp", "cold snare", "tubular adenoma", "negative for high-grade dysplasia", "invasive carcinoma", "one tan tissue fragment", "0.6 cm", "one cassette"]
@@ -177,7 +177,7 @@
       { "token": "{{mrn}}", "value": "NEURO-9902", "entity_type": "MEDICAL_RECORD_NUMBER" },
       { "token": "{{address}}", "value": "90 Fictional Lake Drive, Buffalo, NY 14202", "entity_type": "ADDRESS" },
       { "token": "{{phone}}", "value": "202-555-0109", "entity_type": "PHONE_NUMBER" },
-      { "token": "{{clinician}}", "value": "Dr. Soren Finch", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Soren Finch", "entity_type": "PROVIDER" },
       { "token": "{{date}}", "value": "10/12/2026", "entity_type": "DATE" }
     ],
     "must_preserve": ["Focal epilepsy with impaired awareness", "No seizures for eight months", "fluent speech", "full strength", "normal gait", "levetiracetam 750 mg", "EEG", "left temporal sharp waves", "brain MRI", "Driving precautions"]
@@ -191,11 +191,145 @@
       { "token": "{{dob}}", "value": "07/19/1979", "entity_type": "DATE" },
       { "token": "{{mrn}}", "value": "ID-44812", "entity_type": "MEDICAL_RECORD_NUMBER" },
       { "token": "{{facility}}", "value": "Golden Heron Medical Pavilion", "entity_type": "LOCATION" },
-      { "token": "{{clinician}}", "value": "Dr. Noa Flint", "entity_type": "PERSON" },
+      { "token": "{{clinician}}", "value": "Dr. Noa Flint", "entity_type": "PROVIDER" },
       { "token": "{{date}}", "value": "11/02/2026", "entity_type": "DATE" },
       { "token": "{{phone}}", "value": "202-555-0110", "entity_type": "PHONE_NUMBER" },
       { "token": "{{email}}", "value": "juno.fern@example.test", "entity_type": "EMAIL_ADDRESS" }
     ],
     "must_preserve": ["Methicillin-sensitive Staphylococcus aureus bacteremia", "peripheral catheter", "blood cultures are negative", "Transthoracic echocardiogram", "no vegetation", "Continue cefazolin 2 g IV every 8 hours through the planned stop date", "WBC 7.4 K/uL", "creatinine 0.8 mg/dL", "ALT 24 U/L", "CBC", "CMP"]
+  },
+  {
+    "id": "endocrinology-diabetes",
+    "specialty": "endocrinology",
+    "text": "ENDOCRINOLOGY DIABETES FOLLOW-UP\nPatient Name: {{patient}}\nDOB: {{dob}}  MRN: {{mrn}}  Encounter ID: {{encounter}}\nAddress: {{address}}\nPhone: {{phone}}\nFacility: {{facility}}\nEndocrinologist: {{clinician}}\nVisit date: {{date}}\nType 2 diabetes mellitus with hyperglycemia. Hemoglobin A1c is 8.2%, fasting glucose 174 mg/dL, creatinine 1.0 mg/dL, and eGFR 67 mL/min/1.73 m2. Continue insulin glargine 24 units nightly and semaglutide 1 mg weekly. No symptomatic hypoglycemia. Foot examination shows intact monofilament sensation and no ulcer.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Priya Hollow", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "02/18/1962", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "ENDO-73182", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{encounter}}", "value": "ENC-882031", "entity_type": "UNIQUE_ID" },
+      { "token": "{{address}}", "value": "33 Fictional Orchard Street, Lansing, MI 48933", "entity_type": "ADDRESS" },
+      { "token": "{{phone}}", "value": "202-555-0111", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{facility}}", "value": "Indigo Compass Endocrine Clinic", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Liora Penn", "entity_type": "PROVIDER" },
+      { "token": "{{date}}", "value": "01/16/2026", "entity_type": "DATE" }
+    ],
+    "must_preserve": ["ENDOCRINOLOGY DIABETES FOLLOW-UP", "Endocrinologist", "Type 2 diabetes mellitus with hyperglycemia", "Hemoglobin A1c is 8.2%", "fasting glucose 174 mg/dL", "eGFR 67 mL/min/1.73 m2", "insulin glargine 24 units nightly", "semaglutide 1 mg weekly", "No symptomatic hypoglycemia", "intact monofilament sensation", "no ulcer"]
+  },
+  {
+    "id": "pulmonology-copd",
+    "specialty": "pulmonology",
+    "text": "PULMONOLOGY FOLLOW-UP\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nVisit ID: {{visit}}  Date: {{date}}\nFacility: {{facility}}\nPulmonologist: {{clinician}}\nPartner: {{partner}}  Callback: {{phone}}\nChronic obstructive pulmonary disease, GOLD group B, without acute exacerbation. Spirometry shows FEV1 1.62 L (58% predicted), FVC 2.91 L, and FEV1/FVC 0.56. Resting oxygen saturation is 94% on room air. Continue tiotropium two inhalations daily and albuterol as needed. A 6 mm right upper-lobe pulmonary nodule is unchanged on CT chest.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Basil Corwin", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "09/21/1956", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "PULM-62041", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{visit}}", "value": "VISIT-76012", "entity_type": "UNIQUE_ID" },
+      { "token": "{{date}}", "value": "February 24, 2026", "entity_type": "DATE" },
+      { "token": "{{facility}}", "value": "Crimson Sail Pulmonary Center", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Esme Calder", "entity_type": "PROVIDER" },
+      { "token": "{{partner}}", "value": "Nolan Corwin", "entity_type": "PERSON" },
+      { "token": "{{phone}}", "value": "202-555-0112", "entity_type": "PHONE_NUMBER" }
+    ],
+    "must_preserve": ["PULMONOLOGY FOLLOW-UP", "Pulmonologist", "Chronic obstructive pulmonary disease", "GOLD group B", "without acute exacerbation", "FEV1 1.62 L (58% predicted)", "FVC 2.91 L", "FEV1/FVC 0.56", "oxygen saturation is 94% on room air", "tiotropium two inhalations daily", "albuterol as needed", "6 mm right upper-lobe pulmonary nodule", "unchanged on CT chest"]
+  },
+  {
+    "id": "gastroenterology-crohns",
+    "specialty": "gastroenterology",
+    "text": "GASTROENTEROLOGY PROGRESS NOTE\nPatient Name: {{patient}}  DOB: {{dob}}\nMRN: {{mrn}}  Order ID: {{order}}\nFacility: {{facility}}\nGastroenterologist: {{clinician}}\nDate of service: {{date}}\nEmail: {{email}}\nIleocolonic Crohn disease in clinical remission on infliximab 5 mg/kg every eight weeks. One formed stool daily without bleeding or nocturnal symptoms. Fecal calprotectin is 74 mcg/g, CRP 2.1 mg/L, albumin 4.0 g/dL, AST 21 U/L, and ALT 19 U/L. Surveillance colonoscopy showed mild pseudopolyposis without active ulceration.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Zara Mendel", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "05/29/1984", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "GI-84217", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{order}}", "value": "ORD-663108", "entity_type": "UNIQUE_ID" },
+      { "token": "{{facility}}", "value": "Violet Bridge Digestive Clinic", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Ansel Grove", "entity_type": "PROVIDER" },
+      { "token": "{{date}}", "value": "03/09/2026", "entity_type": "DATE" },
+      { "token": "{{email}}", "value": "zara.mendel@example.test", "entity_type": "EMAIL_ADDRESS" }
+    ],
+    "must_preserve": ["GASTROENTEROLOGY PROGRESS NOTE", "Gastroenterologist", "Ileocolonic Crohn disease", "clinical remission", "infliximab 5 mg/kg every eight weeks", "One formed stool daily", "without bleeding or nocturnal symptoms", "Fecal calprotectin is 74 mcg/g", "CRP 2.1 mg/L", "albumin 4.0 g/dL", "AST 21 U/L", "ALT 19 U/L", "mild pseudopolyposis without active ulceration"]
+  },
+  {
+    "id": "rheumatology-rheumatoid-arthritis",
+    "specialty": "rheumatology",
+    "text": "RHEUMATOLOGY FOLLOW-UP\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nFacility: {{facility}}\nRheumatologist: {{clinician}}\nVisit date: {{date}}\nHome: {{address}}  Phone: {{phone}}\nSeropositive rheumatoid arthritis with low disease activity. Tender joint count 2 and swollen joint count 1. Morning stiffness lasts 20 minutes. ESR is 18 mm/hr and CRP is 3.0 mg/L. Continue methotrexate 20 mg weekly, folic acid 1 mg daily, and adalimumab 40 mg every other week. No oral ulcers, rash, or recent infection.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Keira Sol", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "11/13/1971", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "RHEUM-55206", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{facility}}", "value": "Willow Prism Rheumatology Center", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Mateo Wynn", "entity_type": "PROVIDER" },
+      { "token": "{{date}}", "value": "04/21/2026", "entity_type": "DATE" },
+      { "token": "{{address}}", "value": "812 Fictional Aspen Avenue, Cleveland, OH 44114", "entity_type": "ADDRESS" },
+      { "token": "{{phone}}", "value": "202-555-0113", "entity_type": "PHONE_NUMBER" }
+    ],
+    "must_preserve": ["RHEUMATOLOGY FOLLOW-UP", "Rheumatologist", "Seropositive rheumatoid arthritis", "low disease activity", "Tender joint count 2", "swollen joint count 1", "Morning stiffness lasts 20 minutes", "ESR is 18 mm/hr", "CRP is 3.0 mg/L", "methotrexate 20 mg weekly", "folic acid 1 mg daily", "adalimumab 40 mg every other week", "No oral ulcers, rash, or recent infection"]
+  },
+  {
+    "id": "dermatology-biopsy",
+    "specialty": "dermatology",
+    "text": "DERMATOLOGY PROCEDURE NOTE\nPatient Name: {{patient}}\nDOB: {{dob}}  MRN: {{mrn}}\nSpecimen ID: {{specimen}}  Date: {{date}}\nFacility: {{facility}}\nDermatologist: {{clinician}}\nEmergency contact: {{contact}}, {{phone}}\nA 7 x 5 mm asymmetric pigmented papule on the left upper back was sampled by shave biopsy after local anesthesia with 1% lidocaine with epinephrine. Differential diagnosis includes dysplastic nevus versus melanoma. Hemostasis achieved with aluminum chloride. Wound care instructions were reviewed. Continue triamcinolone 0.1% ointment for plaque psoriasis on the elbows.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Owen Thistle", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "07/02/1990", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "DERM-77319", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{specimen}}", "value": "SPC-9204-D", "entity_type": "UNIQUE_ID" },
+      { "token": "{{date}}", "value": "05/12/2026", "entity_type": "DATE" },
+      { "token": "{{facility}}", "value": "Saffron Cloud Dermatology Clinic", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Amina Locke", "entity_type": "PROVIDER" },
+      { "token": "{{contact}}", "value": "Tessa Thistle", "entity_type": "PERSON" },
+      { "token": "{{phone}}", "value": "202-555-0114", "entity_type": "PHONE_NUMBER" }
+    ],
+    "must_preserve": ["DERMATOLOGY PROCEDURE NOTE", "Dermatologist", "7 x 5 mm asymmetric pigmented papule", "left upper back", "shave biopsy", "1% lidocaine with epinephrine", "Differential diagnosis", "dysplastic nevus versus melanoma", "Hemostasis achieved with aluminum chloride", "Wound care instructions", "triamcinolone 0.1% ointment", "plaque psoriasis on the elbows"]
+  },
+  {
+    "id": "ophthalmology-glaucoma",
+    "specialty": "ophthalmology",
+    "text": "OPHTHALMOLOGY FOLLOW-UP\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nEncounter ID: {{encounter}}\nFacility: {{facility}}\nOphthalmologist: {{clinician}}\nDate: {{date}}  Callback: {{phone}}\nPrimary open-angle glaucoma, moderate stage in both eyes. Visual acuity is 20/25 right eye and 20/30 left eye. Intraocular pressure is 14 mmHg OD and 15 mmHg OS. Optical coherence tomography shows stable superior retinal nerve fiber layer thinning. Continue latanoprost one drop in both eyes nightly. No diabetic retinopathy or macular edema.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Mina Parlow", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "12/04/1948", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "OPH-46108", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{encounter}}", "value": "ENC-105842", "entity_type": "UNIQUE_ID" },
+      { "token": "{{facility}}", "value": "Cobalt Finch Eye Center", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Yara Bell", "entity_type": "PROVIDER" },
+      { "token": "{{date}}", "value": "June 15, 2026", "entity_type": "DATE" },
+      { "token": "{{phone}}", "value": "202-555-0115", "entity_type": "PHONE_NUMBER" }
+    ],
+    "must_preserve": ["OPHTHALMOLOGY FOLLOW-UP", "Ophthalmologist", "Primary open-angle glaucoma", "moderate stage in both eyes", "Visual acuity is 20/25 right eye and 20/30 left eye", "Intraocular pressure is 14 mmHg OD and 15 mmHg OS", "Optical coherence tomography", "stable superior retinal nerve fiber layer thinning", "latanoprost one drop in both eyes nightly", "No diabetic retinopathy or macular edema"]
+  },
+  {
+    "id": "orthopedics-knee-replacement",
+    "specialty": "orthopedics",
+    "text": "ORTHOPEDIC POSTOPERATIVE VISIT\nPatient Name: {{patient}}  DOB: {{dob}}\nMRN: {{mrn}}  Implant ID: {{implant}}\nFacility: {{facility}}\nOrthopedic surgeon: {{clinician}}\nProcedure date: {{procedure_date}}  Visit date: {{visit_date}}\nSpouse: {{spouse}}  Phone: {{phone}}\nSix weeks after right total knee arthroplasty. Incision is healed without erythema or drainage. Range of motion is 0 to 112 degrees. Radiographs show well-aligned components without loosening or periprosthetic fracture. Continue weight bearing as tolerated and outpatient physical therapy. Use acetaminophen for pain and aspirin 81 mg twice daily until prophylaxis is complete.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Gideon Pike", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "03/25/1954", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "ORTH-90814", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{implant}}", "value": "KNEE-TEST-4029", "entity_type": "DEVICE_ID" },
+      { "token": "{{facility}}", "value": "Aurora Field Orthopedic Hospital", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Rafi Elm", "entity_type": "PROVIDER" },
+      { "token": "{{procedure_date}}", "value": "05/01/2026", "entity_type": "DATE" },
+      { "token": "{{visit_date}}", "value": "06/12/2026", "entity_type": "DATE" },
+      { "token": "{{spouse}}", "value": "Calla Pike", "entity_type": "PERSON" },
+      { "token": "{{phone}}", "value": "202-555-0116", "entity_type": "PHONE_NUMBER" }
+    ],
+    "must_preserve": ["ORTHOPEDIC POSTOPERATIVE VISIT", "Orthopedic surgeon", "Six weeks after right total knee arthroplasty", "Incision is healed without erythema or drainage", "Range of motion is 0 to 112 degrees", "well-aligned components", "without loosening or periprosthetic fracture", "weight bearing as tolerated", "outpatient physical therapy", "acetaminophen for pain", "aspirin 81 mg twice daily"]
+  },
+  {
+    "id": "urology-bph",
+    "specialty": "urology",
+    "text": "UROLOGY CLINIC NOTE\nPatient: {{patient}}  DOB: {{dob}}  MRN: {{mrn}}\nFacility: {{facility}}\nUrologist: {{clinician}}\nDate of service: {{date}}\nAddress: {{address}}\nPhone: {{phone}}  Email: {{email}}\nBenign prostatic hyperplasia with lower urinary tract symptoms. International Prostate Symptom Score is 12. Post-void residual is 68 mL. Urinalysis is negative for blood, nitrite, and leukocyte esterase. PSA is 2.7 ng/mL. Continue tamsulosin 0.4 mg nightly. No dysuria, gross hematuria, urinary retention, flank pain, fever, or chills.",
+    "identifiers": [
+      { "token": "{{patient}}", "value": "Damon Voss", "entity_type": "PERSON" },
+      { "token": "{{dob}}", "value": "10/08/1966", "entity_type": "DATE" },
+      { "token": "{{mrn}}", "value": "URO-33712", "entity_type": "MEDICAL_RECORD_NUMBER" },
+      { "token": "{{facility}}", "value": "Teal Harbor Urology Clinic", "entity_type": "LOCATION" },
+      { "token": "{{clinician}}", "value": "Dr. Celine North", "entity_type": "PROVIDER" },
+      { "token": "{{date}}", "value": "07/20/2026", "entity_type": "DATE" },
+      { "token": "{{address}}", "value": "407 Fictional River Boulevard, Columbus, OH 43215", "entity_type": "ADDRESS" },
+      { "token": "{{phone}}", "value": "202-555-0117", "entity_type": "PHONE_NUMBER" },
+      { "token": "{{email}}", "value": "damon.voss@example.test", "entity_type": "EMAIL_ADDRESS" }
+    ],
+    "must_preserve": ["UROLOGY CLINIC NOTE", "Urologist", "Benign prostatic hyperplasia with lower urinary tract symptoms", "International Prostate Symptom Score is 12", "Post-void residual is 68 mL", "Urinalysis is negative for blood, nitrite, and leukocyte esterase", "PSA is 2.7 ng/mL", "tamsulosin 0.4 mg nightly", "No dysuria, gross hematuria, urinary retention, flank pain, fever, or chills"]
   }
 ]

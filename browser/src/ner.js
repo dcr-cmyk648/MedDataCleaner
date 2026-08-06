@@ -14,6 +14,9 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "CONTINUE",
   "CT",
   "DEPARTMENT",
+  "DERMATOLOGIST",
+  "DERMATOLOGY",
+  "DIFFERENTIAL",
   "DISEASE",
   "DISCHARGE",
   "DOB",
@@ -25,9 +28,14 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "EKG",
   "ER",
   "EMERGENCY",
+  "ENDOCRINOLOGIST",
+  "ENDOCRINOLOGY",
   "FOLLOW-UP",
   "FATHER",
+  "FACILITY",
   "GENERAL",
+  "GASTROENTEROLOGIST",
+  "GASTROENTEROLOGY",
   "GUARDIAN",
   "HIPAA",
   "HOME",
@@ -38,7 +46,12 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "INFECTIOUS",
   "INFUSION",
   "KT/V",
+  "LAB",
+  "LABS",
+  "LIST",
   "MEDICAL",
+  "MEDICATION",
+  "MEDICATIONS",
   "MEDICINE",
   "MOOD",
   "MOTHER",
@@ -50,8 +63,12 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "NEUROLOGY",
   "NOTE",
   "OBSTETRICIAN",
+  "OPHTHALMOLOGIST",
+  "OPHTHALMOLOGY",
   "ONCOLOGY",
   "ONCOLOGIST",
+  "ORTHOPEDIC",
+  "ORTHOPEDIST",
   "PATIENT",
   "PAT1ENT",
   "PATLENT",
@@ -64,16 +81,24 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "PMH",
   "PORTAL",
   "POTASSIUM",
+  "PLAN",
   "PTH",
   "PSH",
   "PRENATAL",
   "PROCEDURE",
   "PROGRESS",
+  "PULMONOLOGIST",
+  "PULMONOLOGY",
   "PSYCHIATRY",
   "PSYCHIATRIST",
   "RADIOLOGY",
   "RADIOLOGIST",
+  "RECHECK",
   "REPORT",
+  "RESULT",
+  "RESULTS",
+  "RHEUMATOLOGIST",
+  "RHEUMATOLOGY",
   "ROS",
   "SSN",
   "SUMMARY",
@@ -84,6 +109,8 @@ const CLINICAL_HEADER_ALLOWLIST = new Set([
   "STUDY",
   "POSTOPERATIVE",
   "URR",
+  "UROLOGIST",
+  "UROLOGY",
   "VISIT",
   "WIFE",
   "WORKSTATION",
@@ -93,8 +120,81 @@ const CLINICAL_NER_EXCLUSIONS = new Set([
   "CREATININE",
   "METHICILLIN-SENSITIVE",
   "TOTAL",
+  "TRIAMCINOLONE",
   "VITAMIN AND",
 ]);
+
+const REPORTED_MEDICATION_TERMS = new Set([
+  "ERGOCALCIFEROL",
+  "FARXIGA",
+  "IMDUR",
+  "LOKELMA",
+  "TRESIBA",
+  "TYLENOL",
+]);
+
+const CLINICAL_LAB_TERMS = new Set([
+  "A1C",
+  "ALBUMIN",
+  "ALT",
+  "ANC",
+  "AST",
+  "BICARBONATE",
+  "BILIRUBIN",
+  "BUN",
+  "CALCIUM",
+  "CHLORIDE",
+  "CO2",
+  "CREATININE",
+  "CRP",
+  "EGFR",
+  "FERRITIN",
+  "GLUCOSE",
+  "HEMATOCRIT",
+  "HEMOGLOBIN",
+  "HGB",
+  "IRON",
+  "MAGNESIUM",
+  "PHOS",
+  "PHOSPHATE",
+  "PHOSPHORUS",
+  "PLATELETS",
+  "POTASSIUM",
+  "PTH",
+  "SODIUM",
+  "TSAT",
+  "WBC",
+]);
+
+const SECTION_MARKER =
+  /\b(MEDICATION(?:S|[ \t]+LIST)?|LAB(?:S|[ \t]+RESULTS?)?|PLAN|ASSESSMENT|DIAGNOSIS|HISTORY)\b/gi;
+const MEDICATION_DOSE_SUFFIX =
+  /^[ \t]*(?:(?:[:=|,\-]|is)[ \t]*)?(?:\d[\d,.]*[ \t]*)?(?:mg|mcg|g|kg|mL|L|units?|UT|IU)\b/i;
+const LAB_VALUE_SUFFIX = /^[ \t]*(?:(?:[:=|,\-]|is)[ \t]*)?[-+]?\d/i;
+
+function activeClinicalSection(text, index) {
+  const prefix = text.slice(Math.max(0, index - 2_000), index);
+  const markers = [...prefix.matchAll(SECTION_MARKER)];
+  const marker = markers.at(-1)?.[1]?.toUpperCase() ?? "";
+  if (marker.startsWith("MEDICATION")) return "MEDICATION";
+  if (marker.startsWith("LAB")) return "LAB";
+  return marker ? "OTHER" : "";
+}
+
+function isClinicalMedication(value, section, suffix) {
+  const normalized = value.trim().toUpperCase().replace(/\s+/g, " ");
+  if (REPORTED_MEDICATION_TERMS.has(normalized)) return true;
+  if (MEDICATION_DOSE_SUFFIX.test(suffix) && !/\s/.test(normalized)) return true;
+  return section === "MEDICATION" && /^[A-Z][A-Z0-9'’/\-]{1,39}$/.test(normalized);
+}
+
+function isClinicalLabTerm(value, section, suffix) {
+  const normalized = value.trim().toUpperCase().replace(/\s+/g, " ");
+  return (
+    CLINICAL_LAB_TERMS.has(normalized) &&
+    (section === "LAB" || LAB_VALUE_SUFFIX.test(suffix))
+  );
+}
 
 function isClinicalHeader(value) {
   const words = value
@@ -110,8 +210,13 @@ function isClinicalHeader(value) {
   );
 }
 
-function isClinicalNerExclusion(value) {
-  return CLINICAL_NER_EXCLUSIONS.has(value.trim().toUpperCase().replace(/\s+/g, " "));
+function isClinicalNerExclusion(value, suffix) {
+  const normalized = value.trim().toUpperCase().replace(/\s+/g, " ");
+  return (
+    CLINICAL_NER_EXCLUSIONS.has(normalized) ||
+    (normalized === "CROHN" && /^[ \t]+(?:disease|colitis)\b/i.test(suffix)) ||
+    (normalized === "FOLEY" && /^[ \t]+catheter\b/i.test(suffix))
+  );
 }
 
 const NATIONAL_CHAIN_TERMS = new Set([
@@ -342,7 +447,16 @@ export function mapNerResults(text, chunkStart, results, scoreThreshold = 0.35) 
 
   return mergeModelCandidates(text, candidates).filter((detection) => {
     const detectedText = text.slice(detection.start, detection.end);
-    if (isClinicalHeader(detectedText) || isClinicalNerExclusion(detectedText)) return false;
+    const suffix = text.slice(detection.end, Math.min(text.length, detection.end + 24));
+    const section = activeClinicalSection(text, detection.start);
+    if (isClinicalHeader(detectedText) || isClinicalNerExclusion(detectedText, suffix)) return false;
+    if (
+      detection.entityType === "LOCATION" &&
+      (isClinicalMedication(detectedText, section, suffix) ||
+        isClinicalLabTerm(detectedText, section, suffix))
+    ) {
+      return false;
+    }
     if (detection.entityType !== "LOCATION") return true;
     if (detectedText.length > 48 && /\d/.test(detectedText) && /[a-z][A-Z]/.test(detectedText)) {
       // OCR/run-on prose can become one model token. Deterministic recognizers still remove the
@@ -352,7 +466,6 @@ export function mapNerResults(text, chunkStart, results, scoreThreshold = 0.35) 
     }
 
     const prefix = text.slice(Math.max(0, detection.start - 60), detection.start);
-    const suffix = text.slice(detection.end, Math.min(text.length, detection.end + 24));
     if (
       NATIONAL_CHAIN_TERMS.has(detectedText.toUpperCase()) &&
       GENERIC_CHAIN_CONTEXT.test(prefix)

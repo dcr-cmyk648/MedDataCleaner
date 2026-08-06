@@ -27,18 +27,22 @@ Start with synthetic notes and then add an appropriately governed validation cor
 - OCR-like substitutions, inserted punctuation, broken whitespace, and invisible formatting marks
 - Multiple people and repeated identifiers within one note
 - Clinical values that resemble identifiers and should not be removed
+- Copied lab tables, medication lists, relative plan timing, and referral context that must remain
+  useful after patient and provider names are replaced with distinct typed placeholders
 
 Every production miss becomes a minimized synthetic regression test. Real PHI must never be added
 to the repository or its issue tracker.
 
 The browser development corpus also expands synthetic seeds across general medicine, emergency
 care, cardiology, oncology, psychiatry, surgery, pediatrics, obstetrics, radiology, pathology,
-neurology, and infectious disease. A deterministic seed generates baseline, OCR-confusable,
-line-wrap, noisy-EMR, and segmentation-noise variants. The segmentation profile inserts bounded
-punctuation, line breaks, zero-width spaces, and soft hyphens inside names, dates, contact data,
-facilities, and identifiers. Each generated case carries identifier-removal and
-clinical-preservation assertions so a failure is reproducible. This generated corpus supplements;
-it does not replace, the annotated governed corpus required for release.
+neurology, infectious disease, endocrinology, pulmonology, gastroenterology, rheumatology,
+dermatology, ophthalmology, orthopedics, and urology. A deterministic seed generates baseline,
+OCR-confusable, line-wrap, noisy-EMR, and segmentation-noise variants for each of those twenty
+specialties. The segmentation profile inserts bounded punctuation, line breaks, zero-width spaces,
+and soft hyphens inside names, dates, contact data, facilities, and identifiers. Each generated
+case carries identifier-removal, specialist-label, and clinical-preservation assertions so a
+failure is reproducible. This generated corpus supplements; it does not replace, the annotated
+governed corpus required for release.
 
 ## Evidence behind the corruption profiles
 

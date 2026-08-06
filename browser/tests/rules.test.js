@@ -14,7 +14,7 @@ function detectedValues(text) {
 }
 
 test("ports every deterministic desktop recognizer", () => {
-  assert.equal(PATTERNS.length, 37);
+  assert.equal(PATTERNS.length, 39);
 });
 
 test("detects common synthetic note identifiers", () => {
@@ -45,6 +45,37 @@ History also describes a 93 y/o relative.
 
 test("does not detect typed placeholders", () => {
   assert.deepEqual(detectWithRules("Seen on [DATE_1] by [PERSON_1]. Call [PHONE_NUMBER_1]."), []);
+});
+
+test("preserves pulmonary measurements that resemble corrupted dates", () => {
+  const text =
+    "Spirometry shows FEV1 1.62 L and FVC 2.91 L. Hospitalized4....13.26 for testing.";
+  const values = detectedValues(text);
+
+  assert(!values.get("DATE").has("1 1.62"));
+  assert(values.get("DATE").has("4....13.26"));
+});
+
+test("detects names after cross-specialty clinician labels", () => {
+  const labels = [
+    "Endocrinologist",
+    "Pulmonologist",
+    "Gastroenterologist",
+    "Rheumatologist",
+    "Dermatologist",
+    "Ophthalmologist",
+    "Orthopedic surgeon",
+    "Urologist",
+  ];
+  const names = ["Arlo", "Bela", "Cato", "Dara", "Esme", "Faye", "Galen", "Hana"];
+  const text = labels
+    .map((label, index) => `${label}: Dr. ${names[index]} Clinician`)
+    .join("\n");
+  const detectedNames = detectedValues(text).get("PROVIDER");
+
+  for (let index = 0; index < labels.length; index += 1) {
+    assert(detectedNames.has(`Dr. ${names[index]} Clinician`));
+  }
 });
 
 test("detects the reported malformed date, city, name, zip, address, and split city", () => {
@@ -135,7 +166,7 @@ test("detects reported random OCR insertions without fragmenting labeled names",
   const values = detectedValues(text);
 
   assert(values.get("PERSON").has("Maribel\nQuince"));
-  assert(values.get("PERSON").has("Dr. Rowan Vale"));
+  assert(values.get("PROVIDER").has("Dr. Rowan Vale"));
   assert(values.get("DATE").has("02\n/14/1978"));
   assert(values.get("DATE").has("July 8, 20>26"));
   assert(values.get("ZIP_CODE").has("4950/3"));
@@ -155,7 +186,7 @@ test("detects line-broken and noisy labeled identifiers across general medical n
   const values = detectedValues(text);
 
   assert(values.get("PERSON").has("Mara Quill"));
-  assert(values.get("PERSON").has("Dr.\nIvo March"));
+  assert(values.get("PROVIDER").has("Dr.\nIvo March"));
   assert(values.get("MEDICAL_RECORD_NUMBER").has("GEN]]-00481"));
   assert(values.get("UNIQUE_ID").has("VISIT-\n99104"));
   assert(values.get("PHONE_NUMBER").has("202-\n555-0101"));
@@ -174,7 +205,7 @@ test("handles OCR names and ISO dates without treating clinical values as ages o
   const values = detectedValues(text);
 
   assert(values.get("PERSON").has("Miko 1ark"));
-  assert(values.get("PERSON").has("Dr. 0ren Birch"));
+  assert(values.get("PROVIDER").has("Dr. 0ren Birch"));
   assert(values.get("PERSON").has("Jalen B1rch"));
   assert(values.get("DATE").has("20>26-05-19"));
   assert(values.get("DATE").has("2026\n-05-20"));
@@ -191,10 +222,10 @@ test("does not absorb structural labels or clinical prose around names and stree
     "Continue cefazolin 2 g IV every 8 hours through the planned stop date.";
   const values = detectedValues(text);
 
-  assert(values.get("PERSON").has("Dr. Ivo March"));
-  assert(values.get("PERSON").has("Dr. Aria Stone"));
+  assert(values.get("PROVIDER").has("Dr. Ivo March"));
+  assert(values.get("PROVIDER").has("Dr. Aria Stone"));
   assert(
-    ![...values.get("PERSON")].some(
+    ![...values.get("PROVIDER")].some(
       (value) => value.includes("D0B") || value.includes("NPI") || value.includes("Presented"),
     ),
   );
@@ -229,4 +260,31 @@ test("detects a punctuation-corrupted facility after a narrative preposition", (
 
   assert(values.get("LOCATION").has("Har%bor Test Emergency Center"));
   assert(!values.get("LOCATION").has("troponin"));
+});
+
+test("preserves copied lab rows and relative plan timing that resemble identifiers", () => {
+  const text =
+    "LAB RESULTS\n" +
+    "Hemoglobin | TSAT | Albumin | Calcium | Phosphorus\n" +
+    "10.2 | 21 | 3.7 | 8.7 | 5.4\n" +
+    "Chloride | Sodium | Potassium | Bicarbonate\n" +
+    "101 | 137 | 4.8 | 23\n" +
+    "PLAN\nRecheck labs in 2 weeks and again next month. Refer to Dr. Maya Hart for fistulogram.";
+  const values = detectedValues(text);
+
+  assert.equal(values.get("PHONE_NUMBER")?.size ?? 0, 0);
+  assert.equal(values.get("DATE")?.size ?? 0, 0);
+  assert.equal(values.get("ADDRESS")?.size ?? 0, 0);
+  assert(values.get("PROVIDER").has("Dr. Maya Hart"));
+});
+
+test("uses a provider category without weakening patient-name detection", () => {
+  const text =
+    "Patient: Jessa Wren\nAttending: Dr. Rowan Vale\n" +
+    "Refer to Dr. Maya Hart for fistulogram.";
+  const values = detectedValues(text);
+
+  assert(values.get("PERSON").has("Jessa Wren"));
+  assert(values.get("PROVIDER").has("Dr. Rowan Vale"));
+  assert(values.get("PROVIDER").has("Dr. Maya Hart"));
 });

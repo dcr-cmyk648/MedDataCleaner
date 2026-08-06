@@ -55,6 +55,22 @@ The exact model revision and SHA-256 checksums are recorded in
 does not match. Remote model loading is disabled at runtime, and the page's Content Security
 Policy limits connections to the same origin.
 
+## Fast human review and tab-only learning
+
+After a scan, the review navigator moves through findings without rerunning the model. Press `1`
+to de-identify the active finding, `2` to keep it as clinical text, or use the left and right arrow
+keys to move. The original checkbox controls remain available, and export or clipboard copy still
+requires the final human-review checkbox and a complete fail-closed recomputation.
+
+The app can remember one narrow class of correction while the tab remains open: an exact term that
+the generic local model labeled as a location and the reviewer explicitly kept as clinical text.
+It never learns a keep decision for a person, provider, date, or other identifier category.
+De-identification remains the default. These exact-term choices live only in JavaScript memory;
+they are not written to local storage, session storage, IndexedDB, a cookie, a file, or a network
+request, and they disappear when the tab closes or the reviewer selects **Forget learned clinical
+terms**. A reused finding remains visible and unchecked in the findings list and must be confirmed
+again as part of the required review for that note.
+
 ## Updates and cache busting
 
 Every production build uses content-hashed JavaScript and CSS filenames. The build also emits a
@@ -102,13 +118,17 @@ npm run browser:corpus
 
 The corpus contains synthetic `must_remove` and `must_preserve` annotations. In addition to fixed
 regressions, deterministic seeds generate baseline, OCR-confusable, line-wrap, noisy-EMR, and
-segmentation-noise variants across twelve clinical specialties. The fifth profile covers inserted
-punctuation, intra-identifier line breaks, zero-width spaces, and soft hyphens. It runs every case
-through the real browser model in Chrome, fails on a retained test identifier or lost clinical
-term, verifies the residual/export gate, and repeats the same network-boundary check. New manual
-misses should be minimized into this corpus before their fixes are accepted. The annotations are a
-regression oracle, not proof of de-identification or a substitute for the governed validation
-described in `VALIDATION.md`.
+segmentation-noise variants across twenty clinical specialties: general medicine, emergency
+medicine, cardiology, oncology, psychiatry, surgery, pediatrics, obstetrics, radiology, pathology,
+neurology, infectious disease, endocrinology, pulmonology, gastroenterology, rheumatology,
+dermatology, ophthalmology, orthopedics, and urology. The fifth profile covers inserted
+punctuation, intra-identifier line breaks, zero-width spaces, and soft hyphens. The current suite
+combines 100 generated cases with 22 focused regressions. It runs every case through the real
+browser model in Chrome, fails on a retained test identifier or lost clinical term, reports
+residual findings when the fail-closed export gate remains blocked, and repeats the same
+network-boundary check. New manual misses should be minimized into this corpus before their fixes
+are accepted. The annotations are a regression oracle, not proof of de-identification or a
+substitute for the governed validation described in `VALIDATION.md`.
 
 After the machine assertions pass, inspect the cleaned synthetic notes for plausible clinical or
 structural data loss. The runner supports `--show-output` for that semantic review, `--concise` for

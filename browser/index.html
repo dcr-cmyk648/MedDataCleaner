@@ -128,6 +128,46 @@
           </div>
           <p class="muted">Uncheck only after confirming a finding is not identifying information.</p>
         </div>
+        <div id="reviewNavigator" class="review-navigator hidden" aria-label="Fast finding review">
+          <div class="review-progress">
+            <strong id="reviewPosition">Finding 1 of 1 · 0 decided</strong>
+            <span id="sessionChoices" class="muted">0 model-location keep choices remembered</span>
+          </div>
+          <div class="review-actions">
+            <button id="previousFindingButton" class="secondary compact" type="button">
+              ← Previous
+            </button>
+            <button
+              id="redactButton"
+              class="primary compact"
+              type="button"
+              aria-keyshortcuts="1"
+            >
+              1 · De-identify
+            </button>
+            <button
+              id="keepButton"
+              class="secondary compact"
+              type="button"
+              aria-keyshortcuts="2"
+            >
+              2 · Keep clinical text
+            </button>
+            <button id="nextFindingButton" class="secondary compact" type="button">
+              Next →
+            </button>
+            <button id="forgetChoicesButton" class="secondary compact" type="button">
+              Forget learned clinical terms
+            </button>
+          </div>
+          <p class="review-help">
+            Select a finding, then press <kbd>1</kbd> to de-identify or <kbd>2</kbd> to keep it.
+            Left and right arrows move without rescanning. Model-only location mistakes can be
+            remembered in this tab; choices that keep people, providers, dates, or other
+            identifiers apply only to the current note. Reused findings stay visible for review.
+            Nothing is written to browser storage.
+          </p>
+        </div>
         <div id="findingsList" class="findings-list">
           <p class="empty-state">No scan results yet.</p>
         </div>

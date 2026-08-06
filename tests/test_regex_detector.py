@@ -41,6 +41,35 @@ def test_does_not_detect_typed_placeholders_as_identifiers() -> None:
     assert RegexDetector().detect(text) == []
 
 
+def test_preserves_pulmonary_measurements_that_resemble_corrupted_dates() -> None:
+    text = "Spirometry shows FEV1 1.62 L. Hospitalized4....13.26 for testing."
+
+    values = detected_values(text)
+
+    assert "1 1.62" not in values["DATE"]
+    assert "4....13.26" in values["DATE"]
+
+
+def test_detects_names_after_cross_specialty_clinician_labels() -> None:
+    labels = (
+        "Endocrinologist",
+        "Pulmonologist",
+        "Gastroenterologist",
+        "Rheumatologist",
+        "Dermatologist",
+        "Ophthalmologist",
+        "Orthopedic surgeon",
+        "Urologist",
+    )
+    names = ("Arlo", "Bela", "Cato", "Dara", "Esme", "Faye", "Galen", "Hana")
+    text = "\n".join(f"{label}: Dr. {names[index]} Clinician" for index, label in enumerate(labels))
+
+    values = detected_values(text)
+
+    for name in names:
+        assert f"Dr. {name} Clinician" in values["PROVIDER"]
+
+
 def test_detects_corrupted_date_city_relationship_name_and_line_broken_old_age() -> None:
     text = (
         "Hospitalized 4....13.26. Lives in Kals-amazoo, Michigan with his mother Ma/rtha. "
@@ -149,7 +178,7 @@ def test_detects_reported_random_ocr_insertions_without_fragmenting_labeled_name
     values = detected_values(text)
 
     assert "Maribel\nQuince" in values["PERSON"]
-    assert "Dr. Rowan Vale" in values["PERSON"]
+    assert "Dr. Rowan Vale" in values["PROVIDER"]
     assert "02\n/14/1978" in values["DATE"]
     assert "July 8, 20>26" in values["DATE"]
     assert "4950/3" in values["ZIP_CODE"]
@@ -171,7 +200,7 @@ def test_detects_line_broken_and_noisy_identifiers_across_general_notes() -> Non
     values = detected_values(text)
 
     assert "Mara Quill" in values["PERSON"]
-    assert "Dr.\nIvo March" in values["PERSON"]
+    assert "Dr.\nIvo March" in values["PROVIDER"]
     assert "GEN]]-00481" in values["MEDICAL_RECORD_NUMBER"]
     assert "VISIT-\n99104" in values["UNIQUE_ID"]
     assert "202-\n555-0101" in values["PHONE_NUMBER"]
@@ -192,7 +221,7 @@ def test_handles_ocr_names_iso_dates_and_clinical_numbers_without_cross_line_add
     values = detected_values(text)
 
     assert "Miko 1ark" in values["PERSON"]
-    assert "Dr. 0ren Birch" in values["PERSON"]
+    assert "Dr. 0ren Birch" in values["PROVIDER"]
     assert "Jalen B1rch" in values["PERSON"]
     assert "20>26-05-19" in values["DATE"]
     assert "2026\n-05-20" in values["DATE"]
@@ -211,10 +240,10 @@ def test_does_not_absorb_labels_or_prose_around_names_and_street_abbreviations()
 
     values = detected_values(text)
 
-    assert "Dr. Ivo March" in values["PERSON"]
-    assert "Dr. Aria Stone" in values["PERSON"]
+    assert "Dr. Ivo March" in values["PROVIDER"]
+    assert "Dr. Aria Stone" in values["PROVIDER"]
     assert not any(
-        "D0B" in value or "NPI" in value or "Presented" in value for value in values["PERSON"]
+        "D0B" in value or "NPI" in value or "Presented" in value for value in values["PROVIDER"]
     )
     assert not any("stop date" in value for value in values.get("ADDRESS", set()))
 
@@ -252,3 +281,32 @@ def test_detects_punctuation_corrupted_facility_after_narrative_preposition() ->
 
     assert "Har%bor Test Emergency Center" in values["LOCATION"]
     assert "troponin" not in values["LOCATION"]
+
+
+def test_preserves_copied_lab_rows_and_relative_plan_timing() -> None:
+    text = (
+        "LAB RESULTS\n"
+        "Hemoglobin | TSAT | Albumin | Calcium | Phosphorus\n"
+        "10.2 | 21 | 3.7 | 8.7 | 5.4\n"
+        "Chloride | Sodium | Potassium | Bicarbonate\n"
+        "101 | 137 | 4.8 | 23\n"
+        "PLAN\nRecheck labs in 2 weeks and again next month. "
+        "Refer to Dr. Maya Hart for fistulogram."
+    )
+
+    values = detected_values(text)
+
+    assert not values.get("PHONE_NUMBER")
+    assert not values.get("DATE")
+    assert not values.get("ADDRESS")
+    assert "Dr. Maya Hart" in values["PROVIDER"]
+
+
+def test_uses_provider_category_without_weakening_patient_name_detection() -> None:
+    text = "Patient: Jessa Wren\nAttending: Dr. Rowan Vale\nRefer to Dr. Maya Hart for fistulogram."
+
+    values = detected_values(text)
+
+    assert "Jessa Wren" in values["PERSON"]
+    assert "Dr. Rowan Vale" in values["PROVIDER"]
+    assert "Dr. Maya Hart" in values["PROVIDER"]

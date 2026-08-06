@@ -8,7 +8,7 @@
     {
       "number": 1,
       "name": "Names",
-      "entity_types": ["PERSON"]
+      "entity_types": ["PERSON", "PROVIDER"]
     },
     {
       "number": 2,

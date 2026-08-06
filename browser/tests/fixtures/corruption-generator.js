@@ -6,37 +6,54 @@ const GENERIC_LOCATION_WORDS = new Set([
   "CANCER",
   "CENTER",
   "CLINIC",
+  "DERMATOLOGY",
+  "DIGESTIVE",
+  "ENDOCRINE",
   "EMERGENCY",
+  "EYE",
   "HEART",
   "HOSPITAL",
   "IMAGING",
   "KIDNEY",
   "MEDICAL",
+  "ORTHOPEDIC",
   "PAVILION",
+  "PULMONARY",
+  "RHEUMATOLOGY",
   "SURGICAL",
   "TEST",
+  "UROLOGY",
 ]);
 const GENERIC_ID_PARTS = new Set([
   "ACC",
   "CARD",
+  "DERM",
   "ED",
   "ENC",
+  "ENDO",
   "GEN",
+  "GI",
   "ID",
   "MESH",
   "MRN",
   "NEUR",
   "NEURO",
   "ONC",
+  "OPH",
   "ORD",
+  "ORTH",
   "PATH",
   "PED",
   "PM",
   "PORT",
+  "PULM",
   "RAD",
+  "RHEU",
+  "RHEUM",
   "SPC",
   "SURG",
   "TEST",
+  "URO",
   "VISIT",
 ]);
 const GENERIC_PERSON_PARTS = new Set(["DOCTOR", "DR", "PHYSICIAN", "PROVIDER"]);
@@ -118,12 +135,16 @@ function segmentIdentifier(value) {
   return `${prefix.slice(0, index)}!\n${value.slice(index)}`;
 }
 
+function isNameEntity(entityType) {
+  return entityType === "PERSON" || entityType === "PROVIDER";
+}
+
 function corruptIdentifier(identifier, profile, random) {
   const { entity_type: entityType, kind, value } = identifier;
   if (profile === "baseline") return value;
 
   if (profile === "segmentation") {
-    if (entityType === "PERSON") {
+    if (isNameEntity(entityType)) {
       return insertInsideFirstWord(value, choose(random, ["\u200b", "\u00ad", "!", "%"]));
     }
     if (entityType === "DATE") return segmentYear(value, random);
@@ -152,7 +173,7 @@ function corruptIdentifier(identifier, profile, random) {
   }
 
   if (profile === "ocr") {
-    if (entityType === "PERSON") return replaceFirstConfusable(value, random);
+    if (isNameEntity(entityType)) return replaceFirstConfusable(value, random);
     if (entityType === "DATE") {
       return value.replace(/(19|20)(\d{2})/, (_match, century, year) => `${century}>${year}`);
     }
@@ -166,7 +187,7 @@ function corruptIdentifier(identifier, profile, random) {
   }
 
   if (profile === "layout") {
-    if (entityType === "PERSON" || entityType === "LOCATION") {
+    if (isNameEntity(entityType) || entityType === "LOCATION") {
       return value.replace(/\s+/, "\n");
     }
     if (entityType === "DATE") return value.replace(/([./-])/, "\n$1");
@@ -180,7 +201,7 @@ function corruptIdentifier(identifier, profile, random) {
     return value;
   }
 
-  if (entityType === "PERSON") {
+  if (isNameEntity(entityType)) {
     const prefixMatch = /^(?:(?:Dr\.?|Doctor|Provider|Physician)\s+)/.exec(value);
     const prefix = prefixMatch?.[0] ?? "";
     const words = value.slice(prefix.length).split(" ");
@@ -227,7 +248,7 @@ function mutateLabels(text, profile, random) {
 
 function meaningfulParts(identifier, mutatedValue) {
   const entityType = identifier.entity_type;
-  if (entityType === "PERSON") {
+  if (isNameEntity(entityType)) {
     return mutatedValue.split(/\s+/).filter((part) => {
       const normalized = part.replace(/\W/g, "").toUpperCase();
       return normalized.length >= 3 && !GENERIC_PERSON_PARTS.has(normalized);
