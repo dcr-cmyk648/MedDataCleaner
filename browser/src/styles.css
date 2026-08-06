@@ -109,6 +109,26 @@ footer {
   padding-block: 2.2rem 1.35rem;
 }
 
+.build-meta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.9rem;
+}
+
+.build-meta span {
+  background: var(--blue-soft);
+  border: 1px solid var(--blue-line);
+  border-radius: 999px;
+  color: var(--blue);
+  font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  padding: 0.38rem 0.58rem;
+}
+
 h1,
 h2,
 p {

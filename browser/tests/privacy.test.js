@@ -52,6 +52,38 @@ test("browser and installed interfaces use the same dark color scheme", async ()
   }
 });
 
+test("build metadata is prominent and stale browser builds fail over to unique URLs", async () => {
+  const html = await source("browser/index.html");
+  const styles = await source("browser/src/styles.css");
+  const app = await source("browser/src/app.js");
+  const buildConfig = await source("browser/vite.config.js");
+
+  assert.match(
+    html,
+    /<header class="app-header">[\s\S]*id="buildMeta"[\s\S]*id="versionLabel"[\s\S]*id="updatedLabel"[\s\S]*BROWSER-LOCAL PHI REVIEW/,
+  );
+  assert.match(html, /Cache-Control" content="no-cache, no-store, must-revalidate"/);
+  assert.match(styles, /\.build-meta\s*\{[\s\S]*display: flex/);
+  assert.match(app, /Version \$\{APPLICATION_VERSION\} · Build \$\{shortBuild\}/);
+  assert.match(app, /Last updated \$\{formatBuildTimestamp\(BUILD_UPDATED_AT\)\}/);
+  assert.match(app, /timeZoneName: "short"/);
+
+  assert.match(app, /manifestUrl\.searchParams\.set\([\s\S]*"cacheBust"/);
+  assert.match(app, /cache: "no-store"/);
+  assert.match(app, /destination\.searchParams\.set\("version", version\)/);
+  assert.match(app, /destination\.searchParams\.set\("refresh", Date\.now\(\)\.toString\(36\)\)/);
+  assert.match(app, /window\.location\.replace\(destination\)/);
+  assert.match(app, /state\.updateVersion = newVersion/);
+  assert.match(app, /updateApplication\(state\.updateVersion \?\? "latest"\)/);
+  assert.match(app, /window\.addEventListener\("pageshow", checkForUpdate\)/);
+  assert.match(app, /window\.addEventListener\("online", checkForUpdate\)/);
+  assert.match(app, /const UPDATE_CHECK_INTERVAL_MS = 60 \* 1_000/);
+
+  assert.match(buildConfig, /assetFileNames: "assets\/\[name\]-\[hash\]\[extname\]"/);
+  assert.match(buildConfig, /fileName: "version\.json"/);
+  assert.match(buildConfig, /JSON\.stringify\(\{ version, appVersion, updatedAt \}\)/);
+});
+
 test("clipboard output is a review-gated action below file export", async () => {
   const html = await source("browser/index.html");
   const app = await source("browser/src/app.js");

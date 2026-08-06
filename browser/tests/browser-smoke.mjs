@@ -19,6 +19,23 @@ try {
   });
 
   await page.goto(applicationUrl, { waitUntil: "domcontentloaded" });
+  const versionText = await page.locator("#versionLabel").textContent();
+  const updatedText = await page.locator("#updatedLabel").textContent();
+  assert.match(versionText, /^Version \d+\.\d+\.\d+ · Build (?:[0-9a-f]{7}|development)$/);
+  assert.match(updatedText, /^Last updated .+\d{1,2}:\d{2}.+$/);
+  const buildMetaLayout = await page.evaluate(() => {
+    const metadata = document.querySelector("#buildMeta").getBoundingClientRect();
+    const heading = document.querySelector("h1").getBoundingClientRect();
+    return {
+      metadataLeft: metadata.left,
+      metadataTop: metadata.top,
+      headingLeft: heading.left,
+      headingTop: heading.top,
+    };
+  });
+  assert(Math.abs(buildMetaLayout.metadataLeft - buildMetaLayout.headingLeft) < 1);
+  assert(buildMetaLayout.metadataTop < buildMetaLayout.headingTop);
+
   await page.locator("#engineBadge").getByText("Browser-local engine ready").waitFor({
     timeout: 180_000,
   });
@@ -118,6 +135,29 @@ try {
   assert.doesNotMatch(cleanedRunOn, /CopperMoonDialysis/);
   assert.match(cleanedRunOn, /\[LOCATION_1\]/);
   assert.match(cleanedRunOn, /Echocardiogram reported EF 48%/);
+
+  await page.route("**/version.json?*", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({ version: "forced-update-test" }),
+    });
+  });
+  await page.locator("#inputText").fill("Synthetic note kept in memory during the update check.");
+  await page.evaluate(() => window.dispatchEvent(new Event("online")));
+  await page.locator("#updateNotice").waitFor();
+  assert.equal(await page.locator("#scanButton").isDisabled(), true);
+  assert.equal(await page.locator("#exportButton").isDisabled(), true);
+  await page.unroute("**/version.json?*");
+  await page.locator("#updateButton").click();
+  await page.waitForURL((url) => {
+    return (
+      url.searchParams.get("version") === "forced-update-test" &&
+      url.searchParams.has("refresh")
+    );
+  });
+  const refreshedUrl = new URL(page.url());
+  assert.equal(refreshedUrl.searchParams.get("version"), "forced-update-test");
+  assert.match(refreshedUrl.searchParams.get("refresh"), /^[0-9a-z]+$/);
 
   const applicationOrigin = new URL(applicationUrl).origin;
   assert(requests.length > 5);

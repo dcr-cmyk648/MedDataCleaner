@@ -7,6 +7,9 @@ import {
 } from "./review.js";
 
 const CURRENT_VERSION = __MDC_VERSION__;
+const APPLICATION_VERSION = __MDC_APP_VERSION__;
+const BUILD_UPDATED_AT = __MDC_UPDATED_AT__;
+const UPDATE_CHECK_INTERVAL_MS = 60 * 1_000;
 const worker = new Worker(new URL("./worker.js", import.meta.url), { type: "module" });
 
 const elements = {
@@ -38,6 +41,7 @@ const elements = {
   scanButton: document.querySelector("#scanButton"),
   updateButton: document.querySelector("#updateButton"),
   updateNotice: document.querySelector("#updateNotice"),
+  updatedLabel: document.querySelector("#updatedLabel"),
   versionLabel: document.querySelector("#versionLabel"),
 };
 
@@ -50,6 +54,7 @@ const state = {
   workerInitialized: false,
   modelReady: false,
   updateRequired: false,
+  updateVersion: null,
   nextRequestId: 1,
   requests: new Map(),
   activeFindingIndex: 0,
@@ -480,6 +485,7 @@ function clearText(statusMessage = "Text cleared from browser memory.") {
 function requireUpdate(newVersion) {
   if (!newVersion || newVersion === CURRENT_VERSION || state.updateRequired) return;
   state.updateRequired = true;
+  state.updateVersion = newVersion;
   elements.updateNotice.classList.remove("hidden");
   elements.reviewCheckbox.checked = false;
   elements.reviewCheckbox.disabled = true;
@@ -494,13 +500,17 @@ function updateApplication(version = "latest") {
   clearText("Updating the application…");
   const destination = new URL(window.location.href);
   destination.searchParams.set("version", version);
+  destination.searchParams.set("refresh", Date.now().toString(36));
   window.location.replace(destination);
 }
 
 async function checkForUpdate() {
   try {
     const manifestUrl = new URL("version.json", document.baseURI);
-    manifestUrl.searchParams.set("request", `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    manifestUrl.searchParams.set(
+      "cacheBust",
+      `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    );
     const response = await fetch(manifestUrl, {
       cache: "no-store",
       credentials: "omit",
@@ -512,6 +522,19 @@ async function checkForUpdate() {
   } catch (_error) {
     // A temporary update-check failure does not expose note data and is retried later.
   }
+}
+
+function formatBuildTimestamp(value) {
+  const timestamp = new Date(value);
+  if (Number.isNaN(timestamp.getTime())) return "unknown time";
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+    timeZoneName: "short",
+  }).format(timestamp);
 }
 
 worker.addEventListener("message", (event) => {
@@ -576,7 +599,9 @@ elements.reviewCheckbox.addEventListener("change", updateControls);
 elements.exportButton.addEventListener("click", exportText);
 elements.copyButton.addEventListener("click", copyText);
 elements.addSelectionButton.addEventListener("click", addManualSelection);
-elements.updateButton.addEventListener("click", () => updateApplication());
+elements.updateButton.addEventListener("click", () =>
+  updateApplication(state.updateVersion ?? "latest"),
+);
 elements.previousFindingButton.addEventListener("click", () =>
   setActiveFinding(state.activeFindingIndex - 1, true),
 );
@@ -626,9 +651,13 @@ document.addEventListener("keydown", (event) => {
 document.addEventListener("visibilitychange", () => {
   if (document.visibilityState === "visible") checkForUpdate();
 });
-window.setInterval(checkForUpdate, 5 * 60 * 1_000);
+window.addEventListener("pageshow", checkForUpdate);
+window.addEventListener("online", checkForUpdate);
+window.setInterval(checkForUpdate, UPDATE_CHECK_INTERVAL_MS);
 
 resetReviewState();
-elements.versionLabel.textContent = `Version ${CURRENT_VERSION}`;
+const shortBuild = CURRENT_VERSION === "development" ? CURRENT_VERSION : CURRENT_VERSION.slice(0, 7);
+elements.versionLabel.textContent = `Version ${APPLICATION_VERSION} · Build ${shortBuild}`;
+elements.updatedLabel.textContent = `Last updated ${formatBuildTimestamp(BUILD_UPDATED_AT)}`;
 worker.postMessage({ type: "initialize", baseUrl: document.baseURI });
 checkForUpdate();

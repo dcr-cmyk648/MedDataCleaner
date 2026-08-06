@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="referrer" content="no-referrer" />
     <meta name="theme-color" content="#0b100e" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <meta
       http-equiv="Content-Security-Policy"
       content="default-src 'self'; base-uri 'none'; object-src 'none'; form-action 'none'; connect-src 'self'; img-src 'self' data:; script-src 'self' 'wasm-unsafe-eval'; style-src 'self'; worker-src 'self'"
@@ -15,6 +18,10 @@
   <body>
     <header class="app-header">
       <div>
+        <div id="buildMeta" class="build-meta" aria-label="Application version and update time">
+          <span id="versionLabel">Version loading…</span>
+          <span id="updatedLabel">Last updated loading…</span>
+        </div>
         <p class="eyebrow">BROWSER-LOCAL PHI REVIEW · EXPERIMENTAL</p>
         <h1>Med Data Cleaner</h1>
         <p class="subtitle">Review likely identifiers before using the de-identified text.</p>
@@ -176,7 +183,7 @@
 
     <footer>
       <span id="policyLabel">Experimental browser text policy</span>
-      <span id="versionLabel">Version loading…</span>
+      <span>Automatic safety-update checks are enabled.</span>
       <span>Original text is not saved by the application.</span>
     </footer>
   </body>
