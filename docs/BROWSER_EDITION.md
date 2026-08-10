@@ -146,6 +146,11 @@ oracle, not proof of de-identification or a substitute for the governed validati
 `VALIDATION.md`. New manual misses should be minimized into this corpus before their fixes are
 accepted.
 
+The public page also offers a generated, paste-ready cross-specialty test pack. It selects one
+case from each of the twenty general-medical specialties above, rotates through all five formatting
+profiles, and adds a nephrology/dialysis regression case. The downloadable pack is built directly
+from the tested synthetic fixtures rather than maintained as a separate dialysis-only document.
+
 After the machine assertions pass, inspect the cleaned synthetic notes for plausible clinical or
 structural data loss. The runner supports `--show-output` for that semantic review, `--concise` for
 short failure reports, and `--only=<regular-expression>` for a reproducible subset. Any issue found

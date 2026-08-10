@@ -37,6 +37,17 @@ test("page policy restricts scripts, workers, and connections to the same origin
   assert.doesNotMatch(html, /https?:\/\//);
 });
 
+test("page offers the generated cross-specialty test pack", async () => {
+  const html = await source("browser/index.html");
+  const readme = await source("browser/public/test-data/README.txt");
+
+  assert.match(html, /\.\/test-data\/synthetic-cross-specialty-notes\.txt/);
+  assert.match(html, /Download the synthetic cross-specialty test pack/);
+  assert.match(readme, /Twenty-one paste-ready cases/);
+  assert.match(readme, /general medicine[\s\S]*nephrology\/dialysis/);
+  assert.doesNotMatch(`${html}\n${readme}`, /synthetic-dialysis-notes\.txt/);
+});
+
 test("browser and installed interfaces use the same dark color scheme", async () => {
   const browserStyles = await source("browser/src/styles.css");
   const installedStyles = await source("src/med_data_cleaner/web/static/styles.css");

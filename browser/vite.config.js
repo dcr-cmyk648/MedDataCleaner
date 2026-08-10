@@ -2,6 +2,11 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 
+import {
+  CROSS_SPECIALTY_TEST_PACK_FILE,
+  buildCrossSpecialtyTestPack,
+} from "./test-pack.js";
+
 const packageMetadata = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
@@ -57,6 +62,16 @@ export default defineConfig({
     },
   },
   plugins: [
+    {
+      name: "med-data-cleaner-cross-specialty-test-pack",
+      async generateBundle() {
+        this.emitFile({
+          type: "asset",
+          fileName: CROSS_SPECIALTY_TEST_PACK_FILE,
+          source: await buildCrossSpecialtyTestPack(),
+        });
+      },
+    },
     {
       name: "med-data-cleaner-version-manifest",
       generateBundle() {
