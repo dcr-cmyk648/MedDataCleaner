@@ -1,13 +1,13 @@
 {
   "name": "med-data-cleaner-browser",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
-    "browser:assets": "python3 scripts/prepare_browser_assets.py",
+    "browser:assets": "python scripts/prepare_browser_assets.py || python3 scripts/prepare_browser_assets.py",
     "browser:build": "npm run browser:assets && vite build --config browser/vite.config.js",
     "browser:corpus": "node browser/tests/adversarial-corpus.mjs",
     "browser:smoke": "node browser/tests/browser-smoke.mjs",

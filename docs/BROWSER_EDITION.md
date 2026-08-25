@@ -26,7 +26,8 @@ The only intentional runtime requests are same-origin `GET` requests for:
 The model and runtime are application assets, not patient data. After review, the result can be
 created as an in-memory browser `Blob` and downloaded with the fixed filename `deidentified.txt`,
 or explicitly written to the device clipboard. Both actions repeat the local residual scan first
-and remain blocked until the human-review checkbox is checked.
+and remain blocked until every detected candidate has an explicit decision and the reviewer makes
+a final confirmation that the full note was reviewed for missed PHI.
 
 Browser and operating-system features remain outside this boundary. Clipboard history, browser
 extensions, screenshots, process memory, swap, downloaded files, and a compromised device can
@@ -64,12 +65,28 @@ The exact model revision and SHA-256 checksums are recorded in
 does not match. Remote model loading is disabled at runtime, and the page's Content Security
 Policy limits connections to the same origin.
 
-## Fast human review and tab-only learning
+## Single-surface human review and tab-only learning
 
-After a scan, the review navigator moves through findings without rerunning the model. Press `1`
-to de-identify the active finding, `2` to keep it as clinical text, or use the left and right arrow
-keys to move. The original checkbox controls remain available, and export or clipboard copy still
-requires the final human-review checkbox and a complete fail-closed recomputation.
+Paste synthetic plain text into the single large document surface and choose **Scan and clean**.
+Its label and in-button progress bar show that the local worker is running; when it completes, the
+button reads **Ready for review**. The same surface then displays the locked original note with
+every automatic candidate highlighted, while the consolidated **Detected spans** list remains below
+it.
+
+Select a highlight or its list item, then press `1` to redact it or `2` to keep it as clinical
+text. Tab/Shift+Tab and the left/right arrow controls move between candidates. Every automatic
+candidate starts undecided and must receive its own current-note decision; a keep suggestion is
+never a decision and never changes output. After all automatic candidates are decided, the same
+document surface can show a de-identified preview.
+
+If the detector missed a span, select it in the annotated original, choose its category, and use
+**Add selected span**. Manual spans are deliberate redactions and cause a local rescan. Before
+**Copy de-identified text** and **Export de-identified .txt** become available, the reviewer must
+also check the final confirmation that the complete note—not only highlighted spans—was reviewed
+for missed PHI. Copy and export each perform a final local, fail-closed recomputation.
+
+Use **Edit note** to return to editable text. This clears the scan, decisions, manual spans, and
+output authorization, so the changed note must be scanned and reviewed again.
 
 The app can remember one narrow class of correction while the tab remains open: an exact term that
 the generic local model labeled as a location and the reviewer explicitly kept as clinical text.
@@ -84,7 +101,7 @@ again as part of the required review for that note.
 
 Every production build uses content-hashed JavaScript and CSS filenames. The build also emits a
 small `version.json` containing the Git commit ID. An open tab checks an uncached, uniquely queried
-copy of that file at startup, every five minutes, and whenever the tab becomes visible.
+copy of that file at startup, every minute, and whenever it is restored or comes online.
 
 When a newer version is detected:
 

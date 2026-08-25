@@ -1,5 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
 import {
@@ -38,7 +39,7 @@ const appVersion = packageMetadata.version;
 const updatedAt = resolveUpdatedAt();
 
 export default defineConfig({
-  root: new URL(".", import.meta.url).pathname,
+  root: fileURLToPath(new URL(".", import.meta.url)),
   base: "./",
   define: {
     __MDC_APP_VERSION__: JSON.stringify(appVersion),

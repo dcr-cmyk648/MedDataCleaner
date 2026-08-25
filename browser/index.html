@@ -57,7 +57,11 @@
       </section>
 
       <section class="toolbar" aria-label="Document actions">
-        <button id="scanButton" class="primary" type="button" disabled>Scan and clean</button>
+        <button id="scanButton" class="primary scan-button" type="button" disabled>
+          <span id="scanProgress" class="scan-progress" aria-hidden="true"></span>
+          <span id="scanButtonLabel">Scan and clean</span>
+        </button>
+        <button id="editNoteButton" class="secondary" type="button" disabled>Edit note</button>
         <button id="clearButton" class="secondary" type="button">Clear memory</button>
         <span id="documentStatus" class="muted" aria-live="polite">
           Loading the local model; the first visit may take a minute.
@@ -68,61 +72,50 @@
         <article class="panel">
           <div class="panel-heading">
             <div>
-              <p class="step">1 · SOURCE</p>
-              <h2>Original text</h2>
+              <p class="step">1 · DOCUMENT</p>
+              <h2>Clinical note</h2>
             </div>
             <span id="characterCount" class="counter">0 characters</span>
           </div>
+
           <label class="sr-only" for="inputText">Original clinical text</label>
           <textarea
-            id="inputText"
-            maxlength="500000"
-            spellcheck="false"
-            autocomplete="off"
-            placeholder="Paste synthetic plain clinical text here…"
-          ></textarea>
+              id="inputText"
+              maxlength="500000"
+              spellcheck="false"
+              autocomplete="off"
+              placeholder="Paste synthetic plain clinical text here…"
+            ></textarea>
+          <div
+            id="reviewSurface"
+            class="review-surface hidden"
+            role="document"
+            aria-label="Annotated original clinical note"
+          ></div>
 
-          <div class="selection-tools">
+          <div class="workspace-actions" aria-label="Document view actions">
+            <button
+              id="showOriginalButton"
+              class="secondary compact"
+              type="button"
+              disabled
+            >
+              Show annotated original
+            </button>
+            <button
+              id="showPreviewButton"
+              class="secondary compact"
+              type="button"
+              disabled
+            >
+              Preview de-identified text
+            </button>
+          </div>
+
+          <div class="selection-tools" aria-label="Mark missed PHI">
             <label for="manualCategory">Selected text is</label>
             <select id="manualCategory" disabled></select>
-            <button id="addSelectionButton" class="secondary compact" type="button" disabled>
-              Add selected span
-            </button>
-          </div>
-
-          <div class="review-preview">
-            <p class="small-label">Detection preview</p>
-            <div id="highlightOutput" class="highlight-output muted">
-              Findings will be highlighted here.
-            </div>
-          </div>
-        </article>
-
-        <article class="panel">
-          <div class="panel-heading">
-            <div>
-              <p class="step">2 · RESULT</p>
-              <h2>Cleaned preview</h2>
-            </div>
-            <span id="findingCount" class="counter">Not scanned</span>
-          </div>
-          <pre id="cleanedOutput" class="cleaned-output muted">The cleaned text will appear here.</pre>
-
-          <div id="exportGate" class="export-gate blocked">
-            <div>
-              <p class="small-label">OUTPUT GATE</p>
-              <p id="exportMessage">Run the local scan before exporting or copying.</p>
-            </div>
-            <label class="review-check">
-              <input id="reviewCheckbox" type="checkbox" disabled />
-              <span>I reviewed every finding and the remaining context.</span>
-            </label>
-            <button id="exportButton" class="primary" type="button" disabled>
-              Export de-identified .txt
-            </button>
-            <button id="copyButton" class="secondary" type="button" disabled>
-              Copy de-identified text
-            </button>
+            <button id="addSelectionButton" class="secondary compact" type="button" disabled>Add selected span</button>
           </div>
         </article>
       </section>
@@ -130,28 +123,20 @@
       <section class="findings-section" aria-labelledby="findingsTitle">
         <div class="section-heading">
           <div>
-            <p class="step">3 · REVIEW</p>
+            <p class="step">2 · REVIEW</p>
             <h2 id="findingsTitle">Detected spans</h2>
           </div>
-          <p class="muted">Uncheck only after confirming a finding is not identifying information.</p>
+          <p id="findingCount" class="muted">Not scanned</p>
         </div>
+
         <div id="reviewNavigator" class="review-navigator hidden" aria-label="Fast finding review">
           <div class="review-progress">
             <strong id="reviewPosition">Finding 1 of 1 · 0 decided</strong>
             <span id="sessionChoices" class="muted">0 model-location keep choices remembered</span>
           </div>
           <div class="review-actions">
-            <button id="previousFindingButton" class="secondary compact" type="button">
-              ← Previous
-            </button>
-            <button
-              id="redactButton"
-              class="primary compact"
-              type="button"
-              aria-keyshortcuts="1"
-            >
-              1 · De-identify
-            </button>
+            <button id="previousFindingButton" class="secondary compact" type="button">← Previous</button>
+            <button id="redactButton" class="primary compact" type="button" aria-keyshortcuts="1">1 · Redact</button>
             <button
               id="keepButton"
               class="secondary compact"
@@ -160,23 +145,39 @@
             >
               2 · Keep clinical text
             </button>
-            <button id="nextFindingButton" class="secondary compact" type="button">
-              Next →
-            </button>
-            <button id="forgetChoicesButton" class="secondary compact" type="button">
+            <button id="nextFindingButton" class="secondary compact" type="button">Next →</button>
+            <button
+              id="forgetChoicesButton"
+              class="secondary compact"
+              type="button"
+            >
               Forget learned clinical terms
             </button>
           </div>
           <p class="review-help">
-            Select a finding, then press <kbd>1</kbd> to de-identify or <kbd>2</kbd> to keep it.
-            Left and right arrows move without rescanning. Model-only location mistakes can be
-            remembered in this tab; choices that keep people, providers, dates, or other
-            identifiers apply only to the current note. Reused findings stay visible for review.
-            Nothing is written to browser storage.
+            Select a finding, then press <kbd>1</kbd> to redact or <kbd>2</kbd> to keep it.
+            Left and right arrows move without rescanning. Suggestions never decide a finding or
+            change the output. Nothing is written to browser storage.
           </p>
         </div>
+
         <div id="findingsList" class="findings-list">
           <p class="empty-state">No scan results yet.</p>
+        </div>
+      </section>
+
+      <section id="exportGate" class="export-gate blocked" aria-label="Verified output actions">
+        <div>
+          <p class="small-label">3 · OUTPUT GATE</p>
+          <p id="exportMessage">Run the local scan before exporting or copying.</p>
+        </div>
+        <label class="review-check">
+          <input id="reviewCheckbox" type="checkbox" disabled />
+          <span>I reviewed the complete note for missed PHI, not only the detected spans.</span>
+        </label>
+        <div class="output-actions">
+          <button id="copyButton" class="primary" type="button" disabled>Copy de-identified text</button>
+          <button id="exportButton" class="secondary" type="button" disabled>Export de-identified .txt</button>
         </div>
       </section>
     </main>
